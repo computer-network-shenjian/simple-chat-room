@@ -71,8 +71,8 @@
 | :--: | :-----------------: |
 | 0x03 | passwd_respond type |
 
-> **passwd_respond type：**
->
+>  **passwd_respond type：**
+
 > |   0x1   |      0x2      |  0x3  |
 > | :-----: | :-----------: | :---: |
 > | correct | change passwd | wrong |
@@ -165,6 +165,7 @@
 #### text_user `0x09`
 
 32 bytes
+
 |  0   |           1 , 2            |         3 ... 31         |
 | :--: | :------------------------: | :----------------------: |
 | 0x09 | user_name_length (2 bytes) | user_name (28 bytes max) |
@@ -216,3 +217,6 @@ max : 1024 bytes
 |  0   |          1 , 2           |  3 ... (message_length + 3)   |
 | :--: | :----------------------: | :---------------------------: |
 | 0x0A | message_length (2 bytes) | message_data (1021 bytes max) |
+
+
+
