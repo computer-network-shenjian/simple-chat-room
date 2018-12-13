@@ -175,6 +175,8 @@
 #### text `0x0A`
 
 max : 1024 bytes
+
+
 |  0   |          1 , 2           |  3 ... (message_length + 3)   |
 | :--: | :----------------------: | :---------------------------: |
 | 0x0A | message_length (2 bytes) | message_data (1021 bytes max) |
@@ -193,6 +195,7 @@ max : 1024 bytes
 #### file `0x0C`
 
 max : 1024 bytes
+
 |  0   |                            1 , 2                             |   3 ... (file_length+3)    |
 | :--: | :----------------------------------------------------------: | :------------------------: |
 | 0x0C | file_length (2 bytes) (0 if remaining file_length > 1021 else file_length) | file_data (1021 bytes max) |
@@ -203,6 +206,7 @@ max : 1024 bytes
 
 #### group_text_userlist `0x0D`
 1024 bytes
+
 |  0   |              1, 2              |  3 ... 1024   |
 | :--: | :----------------------------: | :-----------: |
 | 0x0D | username_list_length (2 bytes) | username_list |
@@ -214,6 +218,7 @@ max : 1024 bytes
 #### message `0x0A`
 
 max : 1024 bytes
+
 |  0   |          1 , 2           |  3 ... (message_length + 3)   |
 | :--: | :----------------------: | :---------------------------: |
 | 0x0A | message_length (2 bytes) | message_data (1021 bytes max) |
