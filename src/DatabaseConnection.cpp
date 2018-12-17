@@ -10,6 +10,8 @@ using namespace std;
 #define DatabaseUserId "cyanic"
 #define DatabasePassword "1985727yyhstc"
 
+// const string kDatabaseName = "Simple_chat_room";
+
 // use singleton design
 // example: https://sourcemaking.com/design_patterns/singleton/cpp/1
 class DatabaseConnection {
@@ -153,6 +155,7 @@ string DatabaseConnection::retrive_message(string account_main, string account_s
 	string message_all;
 	while((row = mysql_fetch_row(result)) != NULL) {
 		message_all += row[3];
+		// TODO: vector push_back
         }
 
 	mysql_free_result(result);
