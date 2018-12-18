@@ -15,6 +15,8 @@ const char* kDatabaseName = "Simple_chat_room";
 const char* kDatabaseUserId= "cyanic";
 const char* kDatabasePassword= "1985727yyhstc";
 
+// const string kDatabaseName = "Simple_chat_room";
+
 // use singleton design
 // example: https://sourcemaking.com/design_patterns/singleton/cpp/1
 class DatabaseConnection {
