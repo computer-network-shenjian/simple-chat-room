@@ -1,7 +1,5 @@
 # Simple Chat Room Package Design  
 
-[TOC]
-
 ## Frame type (all)
 
 |  message meta type  | descriptor |
