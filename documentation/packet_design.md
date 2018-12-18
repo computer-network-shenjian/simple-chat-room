@@ -1,7 +1,8 @@
-# Groupwork 3  
+# Simple Chat Room Package Design  
 
-------------------------
-### Frame type (all)
+[TOC]
+
+## Frame type (all)
 
 |  message meta type  | descriptor |
 | :-----------------: | :--------: |
@@ -21,11 +22,11 @@
 | group_text_userlist |    0x0D    |
 |       file_end      |    0x0E    |
 
----;
+------------------------
 
 ## Log In
 
-### Frame types
+### Frame types(Log In)
 
 | message meta type | descriptor |
 | :---------------: | :--------: |
@@ -35,7 +36,7 @@
 |  passwd_respond   |    0x03    |
 |      refuse       |    0x04    |
 
----;
+------------------------
 
 #### info `0x00`
 
@@ -73,7 +74,7 @@
 > | correct | change passwd | wrong |
 > 密码错误client直接踢掉
 
-#### new_passwd `0x02` 
+#### new_passwd `0x02`
 
 |  0   |          1 , 2          |        3 ... 31         |
 | :--: | :---------------------: | :---------------------: |
@@ -85,11 +86,11 @@
 | :--: |
 | 0x04 |
 
----;
+------------------------
 
 ## Synchronization
 
-### Frame types
+### Frame types(Synchronization)
 
 |     frame type      | descriptor |
 | :-----------------: | :--------: |
@@ -124,7 +125,7 @@
 | :--: |
 | 0x08 |
 
----;
+------------------------
 
 ## Communication
 
