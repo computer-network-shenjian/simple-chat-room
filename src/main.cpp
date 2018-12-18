@@ -1,3 +1,4 @@
+#include <string>
 #include <iostream>
 #include "DatabaseConnection.cpp"
 using namespace std;
@@ -12,10 +13,17 @@ int main()
         cout << DatabaseConnection::get_instance()->check_password("Cyanic", "123456") << endl;
         cout << DatabaseConnection::get_instance()->check_password("cyanic", "123456") << endl;
 
-        DatabaseConnection::get_instance()->push_message("yanic", "Cyanic", "Hello!", 4);
-        DatabaseConnection::get_instance()->push_message("yanic", "Cyanic", "Yes!", 5);
-        DatabaseConnection::get_instance()->push_message("yanic", "Cyanic", "GOOD!", 6);
+        DatabaseConnection::get_instance()->push_message("yanic", "Cyanic", "Hello!", 7);
+        DatabaseConnection::get_instance()->push_message("yanic", "Cyanic", "Yes!", 8);
+        DatabaseConnection::get_instance()->push_message("yanic", "Cyanic", "GOOD!", 9);
         
-        cout << DatabaseConnection::get_instance()->retrive_message("yanic", "Cyanic");
+	vector<string> test;
+
+        test = DatabaseConnection::get_instance()->retrive_message("yanic", "Cyanic");
+        int i;
+        for(i = 0; i < 9; i++) {
+                cout << test[i] <<endl;
+        }
+
         return 0;
 }

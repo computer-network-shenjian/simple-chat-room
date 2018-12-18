@@ -1,14 +1,19 @@
-#include "boost/lexical_cast.hpp" 
-#include <unistd.h>
-#include <iomanip>
-#include <iostream>
-#include <mysql.h>
-#include <string>
+#include  "boost/lexical_cast.hpp" 
+#include  <unistd.h>
+#include  <iomanip>
+#include  <iostream>
+#include  <mysql.h>
+#include  <vector>
+#include  <string>
 using namespace std;
 
-#define DatabaseName "Simple_chat_room"
-#define DatabaseUserId "cyanic"
-#define DatabasePassword "1985727yyhstc"
+// #define DatabaseName "Simple_chat_room"
+// #define DatabaseUserId "cyanic"
+// #define DatabasePassword "1985727yyhstc"
+
+const char* kDatabaseName = "Simple_chat_room";
+const char* kDatabaseUserId= "cyanic";
+const char* kDatabasePassword= "1985727yyhstc";
 
 // const string kDatabaseName = "Simple_chat_room";
 
@@ -19,7 +24,7 @@ class DatabaseConnection {
 		void DatabaseInit();
 	   	bool check_account(string account_name);	 		 // check if an account is registered
 		bool check_password(string account_name, string password);
-		string retrive_message(string account_main, string account_sub); //     account_main is the corrsponding client
+		vector<string>  retrive_message(string account_main, string account_sub); //     account_main is the corrsponding client
                	                                                         	 // a particular class is directly connected to.
                       	                                                	 //     account_sub is the other guy this 
                               	                                         	 // message is related to.
@@ -50,7 +55,7 @@ void DatabaseConnection::DatabaseInit()
         }
     
 	// connect to mysql server
-        while(mysql_real_connect(this->MysqlHandler, "localhost", DatabaseUserId, DatabasePassword, DatabaseName, 0, NULL, 0) == NULL) {
+        while(mysql_real_connect(this->MysqlHandler, "localhost", kDatabaseUserId, kDatabasePassword,  kDatabaseName, 0, NULL, 0) == NULL) {
             	cout << "mysql_real_connect failed(" << mysql_error(this->MysqlHandler) << ")" << endl;
 		cout << "retry after 3 seconds" << endl;
 		sleep(3);
@@ -143,10 +148,11 @@ void DatabaseConnection::push_message(string account_main, string account_sub, s
 	MysqlExecCommand(command);
 }
 
-string DatabaseConnection::retrive_message(string account_main, string account_sub)
+vector<string> DatabaseConnection::retrive_message(string account_main, string account_sub)
 {
 	MYSQL_RES *result;
 	MYSQL_ROW row;
+	vector<string> StringStack;
 
 	// form command
 	string command = "select * from history where username_main = '" + account_main + "' and username_sub = '" + account_sub + "'";
@@ -154,10 +160,11 @@ string DatabaseConnection::retrive_message(string account_main, string account_s
 	result = MysqlExecCommand(command);
 	string message_all;
 	while((row = mysql_fetch_row(result)) != NULL) {
-		message_all += row[3];
-		// TODO: vector push_back
+		StringStack.push_back(row[3]);
+		// message_all += row[3];
         }
 
 	mysql_free_result(result);
-	return message_all;
+	// return message_all;
+	return StringStack;
 }
