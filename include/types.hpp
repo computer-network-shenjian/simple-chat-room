@@ -1,14 +1,13 @@
 #include <vector>
 
-
 // used as the first byte of data packets
 enum class PacketType: uint8_t {
     Info = 0x00,
     InfoRespond = 0x01,
-    Passwd = 0x02,
-    PasswdRespond = 0x03,
+    Password = 0x02,
+    PasswordResponce = 0x03,
     Refuse = 0x04,
-    Conf = 0x05,
+    Configuration = 0x05,
     HistoryUserName = 0x06,
     History = 0x07,
     SyncEnd = 0x08,
@@ -31,6 +30,14 @@ enum class StatusCode : int {
     OK = 0,
     OpenFile = -1,
     LogInit = -2,
+};
+
+// Server response type
+enum class ResponseType : uint8_t {
+    UserNotExist = 0,
+    OK = 1,
+    ChangePassword = 2,
+    WrongPassword = 3,
 };
 
 // State machine definition
@@ -59,4 +66,19 @@ enum class SessionState : unsigned int {
         // go back to ServerWaiting state
 };
 
+// Used as buffer for transfer layer, instantiated in Clients
+class CircularQueue {
+    uint8_t *data;
+    size_t num_free_bytes;
+
+public:
+    CircularQueue(size_t size);
+    ~CircularQueue();
+
+    bool enqueue(const vector<uint_8> &v);
+    vector<uint_8> dequeue(size_t size);
+
+private:
+
+};
 
