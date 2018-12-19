@@ -1,5 +1,9 @@
 #include <vector>
 
+// Constants
+size_t kSessionSetSize = 5; // max number of active sessions
+
+
 // used as the first byte of data packets
 enum class PacketType : uint8_t {
     Info = 0x00,
