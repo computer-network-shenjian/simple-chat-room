@@ -1,3 +1,6 @@
+#include <vector>
+
+
 // used as the first byte of data packets
 enum class PacketType: uint8_t {
     Info = 0x00,

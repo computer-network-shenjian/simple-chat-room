@@ -1,8 +1,9 @@
+#include "types.hpp" 
 #include <stdint.h> // uint8_t
 #include <vector> // uint8_t
 
 class CircularQueue {
-    uint8)t *data;
+    uint8_t *data;
     size_t num_free_bytes;
 
 public:
@@ -20,8 +21,12 @@ class Client {
     CircularQueue recv_buffer;
     CircularQueue send_buffer;
 
+    int socket_fd;
+    SessionState state = SessionState::Acceptance;
+
 public:
-    Client(size_t buffer_size) : 
+    Client(int socket_fd, size_t buffer_size) : 
+        socket_fd(socket_fd),
         recv_buffer(buffer_size), 
         send_buffer(buffer_size)
     {}
