@@ -72,19 +72,24 @@ enum class SessionState : unsigned int {
 
 // Used as a buffer in transfer layer, instantiated in Clients
 class CircularQueue {
-    uint8_t *data;
-    size_t _num_free_bytes;
 
 public:
-    CircularQueue(size_t size);
+    CircularQueue(size_t init_size);
     ~CircularQueue();
 
     bool enqueue(const vector<uint_8> &v);
-    vector<uint_8> dequeue(size_t size);
+    vector<uint_8> dequeue(size_t dequeue_size);
 
     // Also requires a getter method for _num_free_bytes here.
+    size_t get_num_free_bytes();
+    size_t get_size();
+    bool queue_empty();
+    bool queue_full();
 
 private:
-
+    size_t size;
+    uint8_t *data;
+    size_t _num_free_bytes;
+    size_t front, rear;
 };
 
