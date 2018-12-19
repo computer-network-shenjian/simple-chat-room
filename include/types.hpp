@@ -20,3 +20,11 @@ struct DataPacket {
     Packet_type type;
     std::vector<uint8_t> data;
 };
+
+// error codes
+enum class ErrorCode : int {
+    OK = 0,
+    OpenFile = -1,
+    LogInit = -2,
+};
+
