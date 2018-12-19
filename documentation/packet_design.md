@@ -19,6 +19,7 @@
 |   file_in_progress  |    0x0C    |
 | group_text_userlist |    0x0D    |
 |       file_end      |    0x0E    |
+|      file_username      |    0x0F    | 
 
 ------------------------
 
@@ -154,6 +155,12 @@ max : 1024 bytes
 | 0x0A | message_length (2 bytes) | message_data (1021 bytes max) |
 
 ### Sending file
+
+#### file_username `0x0F`
+
+|  0   |           1 , 2            |         3 ... 31         |
+| :--: | :------------------------: | :----------------------: |
+| 0x0F | file_username_length (2 bytes) | file_username (28 bytes max) |
 
 #### file_name `0x0B`
 
