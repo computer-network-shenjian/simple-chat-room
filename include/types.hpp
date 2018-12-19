@@ -1,5 +1,10 @@
 #include <vector>
 
+
+#define     MaxHistoryLen   300
+#define     MaxFileLen      1024    //KB    
+
+
 // Constants
 size_t kSessionSetSize = 5; // max number of active sessions
 
@@ -93,3 +98,30 @@ private:
     size_t front, rear;
 };
 
+
+    
+#define  userList vector<string> 
+
+struct configure{
+    unsigned int historyLen;
+};
+
+struct chatHistory{
+    string userName;
+    string[MaxHistoryLen] data;
+};
+
+struct text{
+    string userName;
+    string data;
+};
+
+//not sure if struct group_text should be keeped or just use text[] instead ?
+struct group_text{
+    userList user_list;
+    string data;
+};
+
+struct file{
+    string filePath;
+};
