@@ -5,10 +5,10 @@
 // From the lower layer, CircularQueues are passed through this layer, creating new sessions
 // if a new connection is established
 class SessionLayer {
-    Client* session_set;
+    Client* session_set[kSessionSetSize] {}; // initalize to all null
 
 public:
-    SessionLayer() = default; // TODO: Allocate session_set to have size kSessionSetSize
+    SessionLayer() = default;
     ~SessionLayer();
 
 
