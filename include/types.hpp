@@ -13,16 +13,16 @@ enum class PacketType: uint8_t {
     FileName = 0x0B,
     FileInProgress = 0x0C,
     GroupTextUserlist = 0x0D,
-    FileEnd = 0x0E
+    FileEnd = 0x0E,
 };
 
 struct DataPacket {
-    Packet_type type;
+    PacketType type;
     std::vector<uint8_t> data;
 };
 
-// error codes
-enum class ErrorCode : int {
+// status codes
+enum class StatusCode : int {
     OK = 0,
     OpenFile = -1,
     LogInit = -2,
