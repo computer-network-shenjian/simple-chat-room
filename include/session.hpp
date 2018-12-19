@@ -1,11 +1,12 @@
-#include <unordered_set>
 #include "types.hpp"
 
 // Session layer maintains a set of active client sessions.
 // From the lower layer, CircularQueues are passed through this layer, creating new sessions
 // if a new connection is established
 class SessionLayer {
-    Client* session_set[kSessionSetSize] {}; // initalize to all null
+    // Using an array of pointer to represent the set to avoid having to implement a custom
+    // hash function for unordered_set of custom type
+    Client* session_set[kSessionSetSize] {}; // initalize to all nullptr
 
 public:
     SessionLayer() = default;
@@ -16,11 +17,11 @@ public:
 
     // This method process a raw frame starting from the head of the circular queue
     // Implementation node: Because the session layer knows the set of active client sessions,
-    // this method should automatically match source_socket_fd in argument
+    // this method should automatically match source_socket_fd in the argument
     // with the corresponding active client session.
     // The queue is passed as pointer (newed) because the memory should be reused and referenced
     // by the client instance
-    void process_packet(const int source_socket_fd, const CircularQueue *q);
+    void process_packet(const int source_socket_fd, const CircularQueue *q); // TODO: Pointer or reference?
 
     // Returns a client bound to source_socket_fd, creating a new client if not found in session set
     Client* get_client_instance(const int source_socket_fd);
