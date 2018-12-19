@@ -34,4 +34,4 @@ public:
     // Send a packet to the target client bound to target_socket_fd
     void send_packet(const int target_socket_fd, const DataPacket packet);
 
-}
+};
