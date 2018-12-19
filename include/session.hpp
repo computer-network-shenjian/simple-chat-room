@@ -26,6 +26,8 @@ public:
     // Returns a client bound to source_socket_fd, creating a new client if not found in session set
     Client* get_client_instance(const int source_socket_fd);
 
+    // TODO: Remove client from session_set (and free memory)
+
 
     // Public methods called by the high layer (presentation layer)
 

@@ -16,7 +16,7 @@ public:
         send_buffer(buffer_size)
     {}
 
-    ~Client();
+    ~Client(); // Should call the destructor of the underlying CircularQueue
 
 private:
 
