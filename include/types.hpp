@@ -53,6 +53,7 @@ enum class SessionState : unsigned int {
         FileInProgress, // Until a FileEnd packet is received
         GroupUsernameList,// Target group username list
         GroupText,      // Target group text data
+        // go back to ServerWaiting state
 };
 
 
