@@ -31,19 +31,21 @@ enum class StatusCode : int {
 };
 
 // State machine definition
-// Almost defined sequentially. Actions corresponding to a state are in comments.
+// Defined almost sequentially. Actions corresponding to a state are in comments.
 enum class SessionState : unsigned int {
     Acceptance,         // On acceptance, create a new client instance
-    UserCheck,          // Lookup user in database, password not received yet
-    // If user exists, send responce, else
+    UserCheck,          // Match user in database, password not received yet
+    // If user exists, send a response
     SendResponse,       // Send UserCheck response
-    UserExists,         // Branch 1, receive password and match password in database
+    UserExists,         // Branch #1, receive password and match password in database
         PasswordReset,  // First login. Receive new password and update database
         AlreadyLoggedIn,// Kick off the logged in session
-    // Logoff,          // Merge 1? disconnect (skipped)
-    PreferenceSync,     // Merge 1, send preference
+    PreferenceSync,     // Merge #1, send preference
     HistorySync,        // Send history
-    ServerWaiting,      // Branch 2, branch according to media_type of the next packet (either received or sent)
+    ServerWaiting,      
+        // Branch #2 and Merge #2, branch according to the media_type 
+        // of the next packet (either received or sent).
+        // Send has priority over read.
         TextUsername,   // Target text username
         Text,           // Text data
         FileUsername,   // Target file username
