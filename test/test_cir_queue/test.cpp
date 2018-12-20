@@ -2,69 +2,52 @@
 using namespace std;
 
 int main() {
-    vector<uint8_t> v;
+    uint8_t *v = new uint8_t[4];
     for (int i = 0; i < 4; i++) {
-        v.push_back('a' + i);
+        v[i] = 'a' + i;
     }
-    cout << "v.size():\t" << v.size() << endl;
     CircularQueue q(10);
-    cout << "queue size:\t" << q.get_size() << endl;
+    cout << "queue size:\t" << q.size() << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
     // enqueue test
-    cout << "enqueue:\t" << q.enqueue(v) << endl;
+    cout << "enqueue:\t" << q.enqueue(v, 4) << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
-    cout << "enqueue:\t" << q.enqueue(v) << endl;
+    cout << "enqueue:\t" << q.enqueue(v, 4) << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
-    cout << "enqueue:\t" << q.enqueue(v) << endl;
+    cout << "enqueue:\t" << q.enqueue(v, 4) << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
     // dequeue test
-    vector<uint8_t> v1;
-    v1 = q.dequeue(3);
-    cout << "v1:\t";
-    for (const auto &el: v1) {
-        cout << el;
-    }
-    cout << endl;
-    cout << "v1.size():\t" << v1.size() << endl;
+    uint8_t *v1 = new uint8_t[4];
+    v1[3] = '\0';
+
+    cout << "dequeue:\t" << q.dequeue(v1, 3) << endl;
+    cout << "v1:\t" << v1 << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
-    v1 = q.dequeue(3);
-    cout << "v1:\t";
-    for (const auto &el: v1) {
-        cout << el;
-    }
-    cout << endl;
-    cout << "v1.size():\t" << v1.size() << endl;
+    cout << "dequeue:\t" << q.dequeue(v1, 3) << endl;
+    cout << "v1:\t" << v1 << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
-    v1 = q.dequeue(3);
-    cout << "v1:\t";
-    for (const auto &el: v1) {
-        cout << el;
-    }
-    cout << endl;
+    cout << "dequeue:\t" << q.dequeue(v1, 3) << endl;
+    //cout << "v1:\t" << v1 << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
     // enqueue again
-    cout << "enqueue:\t" << q.enqueue(v) << endl;
+    cout << "enqueue:\t" << q.enqueue(v, 4) << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
-    cout << "enqueue:\t" << q.enqueue(v) << endl;
+    cout << "enqueue:\t" << q.enqueue(v, 4) << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
-    cout << "enqueue:\t" << q.enqueue(v) << endl;
+    cout << "enqueue:\t" << q.enqueue(v, 4) << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
     // dequeue again
-    v1 = q.dequeue(3);
-    cout << "v1:\t";
-    for (const auto &el: v1) {
-        cout << el;
-    }
-    cout << endl;
+    cout << "dequeue:\t" << q.dequeue(v1, 3) << endl;
+    cout << "v1:\t" << v1 << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
 
     return 0;
@@ -73,59 +56,55 @@ int main() {
 /* TESTING PARTS */
 
 CircularQueue::CircularQueue(size_t init_size) {
-    size = init_size;
-    data = new uint8_t[size];
+    _size = init_size;
+    data = new uint8_t[_size];
     front = 0;
     rear = 1;   // point to the next of the last
-    _num_free_bytes = size;
+    _num_free_bytes = _size;
 }
 
 CircularQueue::~CircularQueue() {
     delete[] data;
 }
 
-bool CircularQueue::enqueue(const vector<uint8_t> &v) {
-    if (_num_free_bytes < v.size()) {
+bool CircularQueue::enqueue(const uint8_t *buf, const size_t size) {
+    if (_num_free_bytes < size) {
         //LOG(Debug) << "queue overflow" << endl;
         cerr << "DEBUG: queue overflow" << endl;
         return false;
     }
-    for (const auto &el: v) {
+    for (size_t i = 0; i < size; i++) {
         _num_free_bytes -= 1;
-        data[rear] = el;
-        rear = (rear + 1) % size;
+        data[rear] = buf[i];
+        rear = (rear + 1) % _size;
     }
     return true;
 }
 
-// dequeue: If underflow, return with size 0.
-vector<uint8_t> CircularQueue::dequeue(size_t dequeue_size) {
-    vector<uint8_t> v;
-    if (_num_free_bytes + dequeue_size > size) {
+bool CircularQueue::dequeue(uint8_t *buf, const size_t size) {
+    if (_num_free_bytes + size > _size) {
         //LOG(Debug) << "queue underflow" << endl;
         cerr << "DEBUG: queue underflow" << endl;
-        return v;
+        return false;
     }
-
-    v.reserve(dequeue_size);
-    for (size_t i = 0; i < dequeue_size; i++) {
+    for (size_t i = 0; i < size; i++) {
         _num_free_bytes += 1;
-        front = (front + 1) % size;
-        v.push_back(data[front % size]);
+        front = (front + 1) % _size;
+        buf[i] = data[front];
     }
-    return v;
+    return true;
 }
 
 size_t CircularQueue::get_num_free_bytes() {
     return _num_free_bytes;
 }
 
-size_t CircularQueue::get_size() {
-    return size;
+size_t CircularQueue::size() {
+    return _size;
 }
 
 bool CircularQueue::is_empty() {
-    return _num_free_bytes == size;
+    return _num_free_bytes == _size;
 }
 
 bool CircularQueue::is_full() {

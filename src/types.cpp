@@ -1,47 +1,43 @@
 #include "../include/types.hpp"
 
 CircularQueue::CircularQueue(size_t init_size) {
-    size = init_size;
-    data = new uint8_t[size];
+    _size = init_size;
+    data = new uint8_t[_size];
     front = 0;
     rear = 1;   // point to the next of the last
-    _num_free_bytes = size;
+    _num_free_bytes = _size;
 }
 
 CircularQueue::~CircularQueue() {
     delete[] data;
 }
 
-bool CircularQueue::enqueue(const vector<uint8_t> &v) {
-    if (_num_free_bytes < v.size()) {
-        LOG(Debug) << "queue overflow" << endl;
-        //cerr << "DEBUG: queue overflow" << endl;
+bool CircularQueue::enqueue(const uint8_t *buf, const size_t size) {
+    if (_num_free_bytes < size) {
+        //LOG(Debug) << "queue overflow" << endl;
+        cerr << "DEBUG: queue overflow" << endl;
         return false;
     }
-    for (const auto &el: v) {
+    for (size_t i = 0; i < size; i++) {
         _num_free_bytes -= 1;
-        data[rear] = el;
-        rear = (rear + 1) % size;
+        data[rear] = buf[i];
+        rear = (rear + 1) % _size;
     }
     return true;
 }
 
-// dequeue: If underflow, return with size 0.
-vector<uint8_t> CircularQueue::dequeue(size_t dequeue_size) {
-    vector<uint8_t> v;
-    if (_num_free_bytes + dequeue_size > size) {
-        LOG(Debug) << "queue underflow" << endl;
-        //cerr << "DEBUG: queue underflow" << endl;
-        return v;
+bool CircularQueue::dequeue(uint8_t *buf, const size_t size) {
+    if (_num_free_bytes + size > _size) {
+        //LOG(Debug) << "queue underflow" << endl;
+        cerr << "DEBUG: queue underflow" << endl;
+        return false;
     }
-
-    v.reserve(dequeue_size);
-    for (size_t i = 0; i < dequeue_size; i++) {
+    for (size_t i = 0; i < size; i++) {
         _num_free_bytes += 1;
-        front = (front + 1) % size;
-        v.push_back(data[front % size]);
+        front = (front + 1) % _size;
+        buf[i] = data[front];
     }
-    return v;
+    return true;
 }
 
 size_t CircularQueue::get_num_free_bytes() {
@@ -49,11 +45,11 @@ size_t CircularQueue::get_num_free_bytes() {
 }
 
 size_t CircularQueue::size() {
-    return size;
+    return _size;
 }
 
 bool CircularQueue::is_empty() {
-    return _num_free_bytes == size;
+    return _num_free_bytes == _size;
 }
 
 bool CircularQueue::is_full() {
