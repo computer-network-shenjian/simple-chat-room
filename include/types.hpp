@@ -14,9 +14,9 @@ const size_t kMaxPacketLength = 1024; // TODO: double check on this number
 // used as the first byte of data packets
 enum class PacketType : uint8_t {
     Info = 0x00,
-    InfoRespond = 0x01,
+    InfoResponse = 0x01,
     Password = 0x02,
-    PasswordResponce = 0x03,
+    PasswordResponse = 0x03,
     Refuse = 0x04,
     Configuration = 0x05,
     HistoryUserName = 0x06,
