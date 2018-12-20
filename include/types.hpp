@@ -104,29 +104,16 @@ private:
 };
 
 
-    
-#define  userList vector<string> 
 
-struct configure{
-    unsigned int historyLen;
+class Message_To_App{
+    PacketType type_;
+    std::string user_name_;
+    std::string password_; 
+    std::string media_text_;
+    std::vector<std::string> user_name_list_;
+    std::string file_name_;
+    std::string media_file_;
+    unsigned int config_;
 };
 
-struct chatHistory{
-    string userName;
-    string[MaxHistoryLen] data;
-};
 
-struct text{
-    string userName;
-    string data;
-};
-
-//not sure if struct group_text should be keeped or just use text[] instead ?
-struct group_text{
-    userList user_list;
-    string data;
-};
-
-struct file{
-    string filePath;
-};
