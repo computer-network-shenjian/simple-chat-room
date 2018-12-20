@@ -4,7 +4,7 @@ using namespace std;
 int main() {
     uint8_t *v = new uint8_t[4];
     for (int i = 0; i < 4; i++) {
-        v[i] = 'a' + i;
+        v[i] = 1 + i;
     }
     CircularQueue q(10);
     cout << "queue size:\t" << q.size() << endl;
@@ -13,6 +13,8 @@ int main() {
     // enqueue test
     cout << "enqueue:\t" << q.enqueue(v, 4) << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
+
+    cout << "current_pkg_size:\t" << q.current_packet_size() << endl;
 
     cout << "enqueue:\t" << q.enqueue(v, 4) << endl;
     cout << "queue free:\t" << q.get_num_free_bytes() << endl;
@@ -59,7 +61,7 @@ CircularQueue::CircularQueue(size_t init_size) {
     _size = init_size;
     data = new uint8_t[_size];
     front = 0;
-    rear = 1;   // point to the next of the last
+    rear = 0;   // point to the next of the last
     _num_free_bytes = _size;
 }
 
@@ -74,9 +76,9 @@ bool CircularQueue::enqueue(const uint8_t *buf, const size_t size) {
         return false;
     }
     for (size_t i = 0; i < size; i++) {
-        _num_free_bytes -= 1;
         data[rear] = buf[i];
         rear = (rear + 1) % _size;
+        _num_free_bytes -= 1;
     }
     return true;
 }
@@ -88,9 +90,9 @@ bool CircularQueue::dequeue(uint8_t *buf, const size_t size) {
         return false;
     }
     for (size_t i = 0; i < size; i++) {
-        _num_free_bytes += 1;
-        front = (front + 1) % _size;
         buf[i] = data[front];
+        front = (front + 1) % _size;
+        _num_free_bytes += 1;
     }
     return true;
 }
@@ -109,4 +111,11 @@ bool CircularQueue::is_empty() {
 
 bool CircularQueue::is_full() {
     return _num_free_bytes == 0;
+}
+
+uint16_t CircularQueue::current_packet_size() {
+    uint8_t buf[2];
+    buf[1] = data[(front+1) % _size];
+    buf[0] = data[(front+2) % _size];
+    return ntohs(*((uint16_t*)buf));
 }

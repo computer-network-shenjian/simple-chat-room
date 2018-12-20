@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <stdint.h>
+#include <arpa/inet.h>
 
 class CircularQueue {
 
@@ -10,6 +11,7 @@ public:
 
     bool enqueue(const uint8_t *buf, const size_t size);
     bool dequeue(uint8_t *buf, const size_t size);
+    uint16_t current_packet_size();
 
     // Also requires a getter method for _num_free_bytes here.
     size_t get_num_free_bytes();
