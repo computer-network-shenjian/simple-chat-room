@@ -10,6 +10,11 @@ class Client {
     SessionState state = SessionState::Acceptance;
 
 public:
+    // should be always greater than kHeaderSize (reset to this)
+    // updated when packet is received and on state change
+
+    size_t pending_recv_size; 
+
     Client(int socket_fd, size_t buffer_size) : 
         socket_fd(socket_fd),
         recv_buffer(buffer_size), 
@@ -17,6 +22,8 @@ public:
     {}
 
     ~Client(); // Should call the destructor of the underlying CircularQueue
+
+    void change_state (SessionState target_state);
 
 private:
 

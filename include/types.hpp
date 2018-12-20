@@ -1,12 +1,14 @@
 #include <vector>
 
 
-#define     MaxHistoryLen   300
-#define     MaxFileLen      1024    //KB    
+const int MaxHistoryLen = 300;
+const int MaxFileLen = 1024;    // 1 KB    
 
 
 // Constants
-size_t kSessionSetSize = 5; // max number of active sessions
+const size_t kSessionSetSize = 5; // max number of active sessions
+const unsigned int kHeaderSize = 3; // network packet header size
+const size_t kMaxPacketLength = 1024; // TODO: double check on this number
 
 
 // used as the first byte of data packets
@@ -39,6 +41,8 @@ enum class StatusCode : int {
     OK = 0,
     OpenFile = -1,
     LogInit = -2,
+    RecvError = -3,
+    SendError = -4,
 };
 
 // Server response type
