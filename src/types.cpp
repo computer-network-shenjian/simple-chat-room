@@ -1,61 +1,65 @@
 #include "../include/types.hpp"
+// TODO: other hpp to include
 
-CircularQueue(size_t init_size) {
-    size = init_size;
-    data = new uint_8[size];
+CircularQueue::CircularQueue(size_t init_size) {
+    _size = init_size;
+    data = new uint8_t[_size];
     front = 0;
-    rear = 1;   // point to the next of the last
-    _num_free_bytes = 0;
+    rear = 0;   // point to the next of the last
+    _num_free_bytes = _size;
 }
 
-// TODO: destructor
+CircularQueue::~CircularQueue() {
+    delete[] data;
+}
 
-bool CircularQueue::enqueue(const vector<uint_8> &v) {
-    if (is_full() || _num_free_bytes + v.size() > size) {
+bool CircularQueue::enqueue(const uint8_t *buf, const size_t size) {
+    if (_num_free_bytes < size) {
         LOG(Debug) << "queue overflow" << endl;
+        //cerr << "DEBUG: queue overflow" << endl;
         return false;
     }
-    _num_free_bytes += v.size();
-    // TODO: insert vector into buffer, use iterator?
-    for (const auto &el: v) {
-        data[rear] = el;
-        rear = (rear + 1) % size;
+    for (size_t i = 0; i < size; i++) {
+        data[rear] = buf[i];
+        rear = (rear + 1) % _size;
+        _num_free_bytes -= 1;
     }
-    //rear = (rear + v.size()) % size;
     return true;
 }
 
-vector<uint_8> CircularQueue::dequeue(size_t dequeue_size) {
-    if (is_empty() || _num_free_bytes < dequeue_size) {
-        LOG(Info) << "queue underflow" << endl;
+bool CircularQueue::dequeue(uint8_t *buf, const size_t size) {
+    if (_num_free_bytes + size > _size) {
+        LOG(Debug) << "queue underflow" << endl;
+        //cerr << "DEBUG: queue underflow" << endl;
         return false;
     }
-    _num_used_bytes -= dequeue_size;
-    // TODO: get chars to vector from buffer, use iterator?
-    
-    vector<uint_8> v;
-    v.reserve(dequeue_size);
-    for (size_t i = 0; i < dequeue_size; i++) {
-        v.push_back(data[(front++) % size]);
+    for (size_t i = 0; i < size; i++) {
+        buf[i] = data[front];
+        front = (front + 1) % _size;
+        _num_free_bytes += 1;
     }
-    front--; // undo the last increment
-    front %= size; // wrap around
-
-    return v;
+    return true;
 }
 
 size_t CircularQueue::get_num_free_bytes() {
     return _num_free_bytes;
 }
 
-size_t CircularQueue::get_size() {
-    return size;
+size_t CircularQueue::size() {
+    return _size;
 }
 
 bool CircularQueue::is_empty() {
-    return _num_free_bytes == 0;
+    return _num_free_bytes == _size;
 }
 
 bool CircularQueue::is_full() {
-    return _num_free_bytes == size;
+    return _num_free_bytes == 0;
+}
+
+uint16_t CircularQueue::current_packet_size() {
+    uint8_t buf[2];
+    buf[1] = data[(front+1) % _size];
+    buf[0] = data[(front+2) % _size];
+    return ntohs(*((uint16_t*)buf));
 }
