@@ -1,4 +1,5 @@
 #include "../include/types.hpp"
+// TODO: other hpp to include
 
 CircularQueue::CircularQueue(size_t init_size) {
     _size = init_size;
@@ -14,8 +15,8 @@ CircularQueue::~CircularQueue() {
 
 bool CircularQueue::enqueue(const uint8_t *buf, const size_t size) {
     if (_num_free_bytes < size) {
-        //LOG(Debug) << "queue overflow" << endl;
-        cerr << "DEBUG: queue overflow" << endl;
+        LOG(Debug) << "queue overflow" << endl;
+        //cerr << "DEBUG: queue overflow" << endl;
         return false;
     }
     for (size_t i = 0; i < size; i++) {
@@ -28,8 +29,8 @@ bool CircularQueue::enqueue(const uint8_t *buf, const size_t size) {
 
 bool CircularQueue::dequeue(uint8_t *buf, const size_t size) {
     if (_num_free_bytes + size > _size) {
-        //LOG(Debug) << "queue underflow" << endl;
-        cerr << "DEBUG: queue underflow" << endl;
+        LOG(Debug) << "queue underflow" << endl;
+        //cerr << "DEBUG: queue underflow" << endl;
         return false;
     }
     for (size_t i = 0; i < size; i++) {

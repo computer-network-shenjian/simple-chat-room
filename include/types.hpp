@@ -1,5 +1,5 @@
 #include <vector>
-
+#include <arpa/inet.h>
 
 #define     MaxHistoryLen   300
 #define     MaxFileLen      1024    //KB    
