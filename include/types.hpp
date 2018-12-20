@@ -88,8 +88,8 @@ public:
     // Also requires a getter method for _num_free_bytes here.
     size_t get_num_free_bytes();
     size_t get_size();
-    bool queue_empty();
-    bool queue_full();
+    bool is_empty();
+    bool is_full();
 
 private:
     size_t size;
