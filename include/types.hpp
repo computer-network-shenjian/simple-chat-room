@@ -15,9 +15,9 @@ const size_t kRecvBufferSize = kMaxPacketLength * 3;
 // used as the first byte of data packets
 enum class PacketType : uint8_t {
     Info = 0x00,
-    InfoRespond = 0x01,
+    InfoResponse = 0x01,
     Password = 0x02,
-    PasswordResponce = 0x03,
+    PasswordResponse = 0x03,
     Refuse = 0x04,
     Configuration = 0x05,
     HistoryUserName = 0x06,
@@ -116,30 +116,26 @@ private:
     size_t front, rear;
 };
 
-#define  userList vector<string> 
 
-struct configure{
-    unsigned int historyLen;
+class Message_To_App{
+    PacketType type_;
+    std::string user_name_;
+    std::string password_; 
+    std::string media_text_;
+    std::vector<std::string> user_name_list_;
+    std::string file_name_;
+    std::string media_file_;
+    unsigned int config_;
 };
 
-struct chatHistory{
-    string userName;
-    string[MaxHistoryLen] data;
-};
 
-struct text{
-    string userName;
-    string data;
-};
-
-//not sure if struct group_text should be keeped or just use text[] instead ?
+// not sure if struct group_text should be kept or just use text[] instead ?
 struct group_text{
-    userList user_list;
+    vector<string> user_list;
     string data;
 };
 
 struct file{
     string filePath;
 };
-
 
