@@ -5,8 +5,8 @@
 #include <sstream>
 #include <stdint.h>
 
-#define kServerConfFile "../conf/server.conf"
-#define kClientConfFile "../conf/client.conf"
+#define kServerConfFile "conf/server.conf"
+#define kClientConfFile "conf/client.conf"
 
 struct ServerConf {
     uint16_t port;

@@ -1,25 +1,27 @@
 CXXFLAGS := -std=c++11 -Wall -Wextra
 
-SRC_SERVER := server.cpp
-
-TARGET_SERVER := $(SRC_SERVER:.cpp=)
-
-SRC_LIB := 
-HEADER_LIB := $(SRC_LIB:.cpp=.hpp)
+SRC_LIB = $(wildcard src/*.cpp)
+HEADER_LIB = $(wildcard include/*.hpp)
 OBJ_LIB := $(SRC_LIB:.cpp=.o)
+TARGET_LIB := server try
 
-RM := rm -rf
+RM := rm -f
 
-all: $(TARGET_SERVER) $(TARGET_CLIENT) 
+all: $(OBJ_LIB)
+	$(CXX) $(CXXFLAGS) -o server $^
 
-$(TARGET_SERVER): $(SRC_SERVER) $(OBJ_LIB) $(HEADER_LIB)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+$(OBJ_LIB) : $(HEADER_LIB)
 
-$(TARGET_CLIENT): $(SRC_CLIENT) $(OBJ_LIB) $(HEADER_LIB)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+%.o: %.cpp $(HEADER_LIB)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%: %.o %.hpp
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
+conf: src/conf.o include/conf.hpp
+	$(CXX) $(CXXFLAGS) -o try $<
 
 clean :
-	$(RM) $(TARGET_SERVER) $(TARGET_CLIENT) *.o
-	$(RM) server_txt/ client_txt/
+	$(RM) $(TARGET_LIB) $(OBJ_LIB)
 
-.PHONY : clean all 
+.PHONY : all clean conf
