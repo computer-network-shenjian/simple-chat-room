@@ -22,14 +22,14 @@ StatusCode TransferLayer::try_recv(const Client &client) {
         }
     } 
 
-    if (!client.recv_buffer.is_full()) {
+    if (!client.recv_buffer.is_full() && client.recv_buffer.current_packet_size()) {
         int num_bytes = recv(client.socket_fd, tmp_buffer, client.recv_buffer.get_num_free_bytes(), 0);
         // error handling
         if (num_bytes < 0) {
             LOG(Error) << "RecvError 2\n";
             return StatusCode::RecvError;
         } else {
-            client.recv_buffer.enqueue(tmp_buffer, received_bytes); 
+            client.recv_buffer.enqueue(tmp_buffer, num_bytes); 
         }
     }
 
