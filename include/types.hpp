@@ -1,15 +1,16 @@
 #include <vector>
 #include <arpa/inet.h>
+#include <stdint.h>
 
 const int MaxHistoryLen = 300;
-const int MaxFileLen = 1024;    // 1 KB    
-
+const int MaxFileLen = 1021;    // 1 KB    
 
 // Constants
 const size_t kSessionSetSize = 5; // max number of active sessions
 const unsigned int kHeaderSize = 3; // network packet header size
 const size_t kMaxPacketLength = 1024; // TODO: double check on this number
-
+const unsigned int kHeaderSize = 3; // network packet header size
+const size_t kRecvBufferSize = kMaxPacketLength * 3;
 
 // used as the first byte of data packets
 enum class PacketType : uint8_t {
@@ -31,6 +32,11 @@ enum class PacketType : uint8_t {
     FileUsername = 0x0F,
 };
 
+struct DataPacketHeader {
+    PacketType type;
+    uint16_t payload_size;
+}
+    
 struct DataPacket {
     PacketType type;
     std::vector<uint8_t> data;
@@ -42,7 +48,12 @@ enum class StatusCode : int {
     OpenFile = -1,
     LogInit = -2,
     RecvError = -3,
-    SendError = -4,
+    RecvPartial = -4,
+    RecvComplete = -5,
+    SendError = -6,
+    SendPartial = -7,
+    SendComplete = -8,
+    Accept = -9,
 };
 
 // Server response type
@@ -88,13 +99,15 @@ public:
 
     bool enqueue(const uint8_t *buf, const size_t size);
     bool dequeue(uint8_t *buf, const size_t size);
-    uint16_t current_packet_size();
+    uint16_t current_packet_size(); // note: this is actually the payload size
 
     // Also requires a getter method for _num_free_bytes here.
     size_t get_num_free_bytes();
     size_t size();
     bool is_empty();
     bool is_full();
+    bool has_complete_packet(); // has at least one complete packet
+    DataPacket dequeue_packet(); // return a complete packet
 
 private:
     size_t _size;
@@ -103,8 +116,6 @@ private:
     size_t front, rear;
 };
 
-
-    
 #define  userList vector<string> 
 
 struct configure{
@@ -130,3 +141,5 @@ struct group_text{
 struct file{
     string filePath;
 };
+
+

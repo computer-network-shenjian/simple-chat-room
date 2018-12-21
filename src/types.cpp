@@ -1,5 +1,6 @@
 #include "../include/types.hpp"
-// TODO: other hpp to include
+
+using namespace std;
 
 CircularQueue::CircularQueue(size_t init_size) {
     _size = init_size;
@@ -30,14 +31,13 @@ bool CircularQueue::enqueue(const uint8_t *buf, const size_t size) {
 bool CircularQueue::dequeue(uint8_t *buf, const size_t size) {
     if (_num_free_bytes + size > _size) {
         LOG(Debug) << "queue underflow" << endl;
-        //cerr << "DEBUG: queue underflow" << endl;
         return false;
     }
     for (size_t i = 0; i < size; i++) {
         buf[i] = data[front];
         front = (front + 1) % _size;
-        _num_free_bytes += 1;
     }
+    _num_free_bytes += size; // maintainance
     return true;
 }
 
@@ -46,7 +46,7 @@ size_t CircularQueue::get_num_free_bytes() {
 }
 
 size_t CircularQueue::size() {
-    return _size;
+    return _size - _num_free_bytes; // _size is actually _capacity
 }
 
 bool CircularQueue::is_empty() {
@@ -59,7 +59,29 @@ bool CircularQueue::is_full() {
 
 uint16_t CircularQueue::current_packet_size() {
     uint8_t buf[2];
-    buf[1] = data[(front+1) % _size];
-    buf[0] = data[(front+2) % _size];
-    return ntohs(*((uint16_t*)buf));
+    buf[0] = data[(front+1) % _size];
+    buf[1] = data[(front+2) % _size];
+    return *(ntohs(uint16_t*)buf);
 }
+
+bool CircularQueue::has_complete_packet() {
+    // the first condition checks for if even contain a complete packet header,
+    // and the second varifies the whole packet length
+    return (size() >= kHeaderSize) && (size() >= kHeaderSize + current_packet_size());
+}
+
+DataPacket CircularQueue::dequeue_packet() {
+    size_t payload_size = current_packet_size();
+
+    DataPacketHeader header;
+    // get rid of the header from the buffer
+    dequeue(&header, 3); // the bit ordering of the 2-3 bytes doesn't really matter
+
+    uint8_t payload[payload_size];
+    dequeue(payload, payload_size);
+
+    vector<uint8_t> data (payload);
+    DataPacket dp { *first_byte, data };
+    return dp;
+}
+

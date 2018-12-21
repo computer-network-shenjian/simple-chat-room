@@ -1,10 +1,11 @@
 #include "types.hpp" 
 #include <stdint.h> // uint8_t
-#include <vector> // uint8_t
+#include <vector>
+#include <queue>
 
 class Client {
     CircularQueue recv_buffer;
-    CircularQueue send_buffer;
+    std::queue< std::vector<uint8_t> > send_buffer;
 
     int socket_fd;
     SessionState state = SessionState::Acceptance;
@@ -12,8 +13,6 @@ class Client {
 public:
     // should be always greater than kHeaderSize (reset to this)
     // updated when packet is received and on state change
-
-    size_t pending_recv_size; 
 
     Client(int socket_fd, size_t buffer_size) : 
         socket_fd(socket_fd),
