@@ -39,16 +39,14 @@ StatusCode TransferLayer::try_recv(const Client &client) {
 StatusCode TransferLayer::try_send(const Client &client) {
     vector<uint8_t> &v = client.send_buffer.front();
     size_t size_before = v.size();
-    // TODO: should send take any flags?
     int num_bytes = send(client.socket_fd, v.data(), size_before, MSG_NOSIGNAL);
     if (num_bytes <= 0) {
         LOG(Error) << "SendError, send returned " << num_bytes << endl;
         return StatusCode::SendError;
     }
 
-    if (num_bytes < size_before) {
-        // partial send
-        v.erase(v.begin(), v.begin() + num_bytes);
+    if (num_bytes < size_before) { // partial send
+        v.erase(v.begin(), v.begin() + num_bytes); // move remaining data to the front 
     } else { // complete send
         client.send_buffer.pop();
     }
@@ -60,7 +58,7 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
     fd_set read_fds, write_fds;
 
     for (;;) {
-        int fdmax = reset_rw_fd_sets(session_set, fd_set &read_fds, fd_set &write_fds);
+        int fdmax = reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds);
         FD_SET(listener, read_fds); // also listen for new connections
 
         int rv = select(fdmax+1, read_fds, write_fds, NULL, NULL);
@@ -87,7 +85,7 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
 
                 // and lastly, check for new connections 
                 if (FD_ISSET(listener, &read_fds)) {
-                    accept_new_client(listener, socket_client_map);
+                    accept_new_client(listener);
                 }
                 
                 break;
@@ -95,7 +93,7 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
     } // end of main loop
 }
 
-int reset_rw_fd_sets(const list<Client> &session_set, fd_set &read_fds, fd_set &write_fds) {
+int reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds) {
     int maxfd = 0;
     for (const Client &client : session_set) {
         // set read_fds if have enough buffer size to receive at least the header
@@ -121,7 +119,7 @@ void *get_in_addr(struct sockaddr *sa) {
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-StatusCode accept_new_client(int listener, list<Client> &session_set) {
+StatusCode accept_new_client(int listener) {
     struct sockaddr_storage remoteaddr; // client address
     socklen_t addrlen = sizeof(remoteaddr);
 

@@ -34,7 +34,7 @@ public:
     StatusCode send_to_client(int target_socket_fd, const DataPacket packet);
 
     // kick client if password error
-    StatusCode kick_client(int target_client_fd);
+    StatusCode remove_client(Client &client);
 
     // Try to read as much as possible from the client's socket_fd and write to the 
     // underlying circular queue buffer.
@@ -56,7 +56,7 @@ private:
     StatusCode loop_accept_client();
 
 
-    int reset_rw_fd_sets(session_set, fd_set &read_fds, fd_set &write_fds);
+    int reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds);
 
 };
 
