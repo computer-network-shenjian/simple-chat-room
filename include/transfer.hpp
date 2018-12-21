@@ -2,6 +2,7 @@
 #include <map>
 #include <set>
 #include "types.hpp"
+#include "utils.hpp"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -49,14 +50,14 @@ public:
 
 private:
     int server_fd;
-    // init socket, with conf
-    StatusCode socket_init(const Conf config);
 
     // loop accept client
     StatusCode loop_accept_client();
 
-
     int reset_rw_fd_sets(session_set, fd_set &read_fds, fd_set &write_fds);
+
+    // If false, return -1, else return socket code.
+    int get_listener(const ServerConf conf);
 
 };
 

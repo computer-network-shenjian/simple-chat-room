@@ -95,7 +95,7 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
     } // end of main loop
 }
 
-int reset_rw_fd_sets(const list<Client> &session_set, fd_set &read_fds, fd_set &write_fds) {
+int TransferLayer::reset_rw_fd_sets(const list<Client> &session_set, fd_set &read_fds, fd_set &write_fds) {
     int maxfd = 0;
     for (const Client &client : session_set) {
         // set read_fds if have enough buffer size to receive at least the header
@@ -151,4 +151,41 @@ StatusCode accept_new_client(int listener, list<Client> &session_set) {
             << " on socket " << newfd << std::endl;
     }
     return newfd;
+}
+
+int TransferLayer::get_listener(ServerConf conf) {
+    // AF_INET: IPv4 protocol
+    // SOCK_STREAM: TCP protocol
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd < 0) {
+        LOG(Error) << "Server socket init error" << endl;
+        graceful_return("socket", StatusCode::CreateSocket);
+    }
+
+    int opt = 1;
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        LOG(Error) << "Server setsockopt error" << endl;
+        graceful_return("setsockopt", StatusCode::Setsockopt);
+    }
+
+    int flags = fcntl(server_fd, F_GETFL, 0);
+    fcntl(server_fd, F_SETFL, flags|O_NONBLOCK);
+
+    struct sockaddr_in server_addr; 
+    server_addr.sin_family = AF_INET; 
+    // INADDR_ANY means 0.0.0.0(localhost), or all IP of local machine.
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(conf.port); 
+    int server_addrlen = sizeof(server_addr);
+    if (bind(server_fd, (struct sockaddr *) &server_addr, server_addrlen) < 0) {
+        LOG(Error) << "Server bind error" << endl;
+        graceful_return("bind", StatusCode::Bind);
+    }
+
+    if (listen(server_fd, TCP_LISTEN_NUM) < 0) {
+        LOG(Error) << "Server listen error" << endl;
+        graceful_return("listen", StatusCode::Listen); 
+    }
+    LOG(Info) << "Server socket init ok with port: " << conf.port << endl;
+    return socket_fd;
 }
