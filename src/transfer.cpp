@@ -25,11 +25,11 @@ StatusCode TransferLayer::try_recv(const Client &client) {
     if (!client.recv_buffer.is_full()) {
         int num_bytes = recv(client.socket_fd, tmp_buffer, client.recv_buffer.get_num_free_bytes(), 0);
         // error handling
-        if (num_bytes <= 0) {
+        if (num_bytes < 0) {
             LOG(Error) << "RecvError 2\n";
             return StatusCode::RecvError;
         } else {
-            client.recv_buffer.enqueue(tmp_buffer, received_bytes); // TODO
+            client.recv_buffer.enqueue(tmp_buffer, received_bytes); 
         }
     }
 
