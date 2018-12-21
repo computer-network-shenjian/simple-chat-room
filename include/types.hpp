@@ -54,6 +54,10 @@ enum class StatusCode : int {
     SendPartial = -7,
     SendComplete = -8,
     Accept = -9,
+    CreateSocket = -10,
+    Setsockopt = -11,
+    Bind = -12,
+    Listen = -13,
 };
 
 // Server response type

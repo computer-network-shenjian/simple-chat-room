@@ -19,7 +19,7 @@
 |   file_in_progress  |    0x0C    |
 | group_text_userlist |    0x0D    |
 |       file_end      |    0x0E    |
-|      file_username      |    0x0F    | 
+|      file_username      |    0x0F    |
 
 ------------------------
 
@@ -45,9 +45,9 @@
 
 #### info_respond `0x01`
 
-|  0   |      1       |
-| :--: | :----------: |
-| 0x01 | respond type |
+|  0   |  1, 2  |      3       |
+| :--: | :----: | :----------: |
+| 0x01 | 0x0001 | respond type |
 
  > **respond type:**
  > >|         0x0         |   0x1   |
@@ -62,9 +62,9 @@
 
 #### passwd_respond `0x03`
 
-|  0   |          1          |
-| :--: | :-----------------: |
-| 0x03 | passwd_respond type |
+|  0   |  1, 2  |          3          |
+| :--: | :----: | :-----------------: |
+| 0x03 | 0x0001 | passwd_respond type |
 
 > **passwd_respond type:**
 
@@ -81,9 +81,9 @@
 
 #### refuse  `0x04`
 
-|  0   |
-| :--: |
-| 0x04 |
+|  0   |  1, 2  |  3   |
+| :--: | :----: | :--: |
+| 0x04 | 0x0000 |  0   |
 
 ------------------------
 
@@ -100,9 +100,9 @@
 
 #### configure  `0x05`
 
-|  0   |          1 , 2          |
-| :--: | :---------------------: |
-| 0x05 | record_length (2 bytes) |
+|  0   |  1, 2  |          3, 4           |
+| :--: | :----: | :---------------------: |
+| 0x05 | 0x0002 | record_length (2 bytes) |
 
 #### history_user_name  `0x06`
 

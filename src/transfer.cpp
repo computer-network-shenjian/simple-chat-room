@@ -17,19 +17,19 @@ StatusCode TransferLayer::try_recv(const Client &client) {
             } else {
                 // recv correct
                 received_bytes += num_bytes;
-                client.recv_buffer.enqueue(tmp_buffer, received_bytes); // TODO
+                client.recv_buffer.enqueue(tmp_buffer, received_bytes); 
             }
         }
     } 
 
-    if (!client.recv_buffer.is_full()) {
+    if (!client.recv_buffer.is_full() && client.recv_buffer.current_packet_size()) { // buffer not full and has data to recv
         int num_bytes = recv(client.socket_fd, tmp_buffer, client.recv_buffer.get_num_free_bytes(), 0);
         // error handling
-        if (num_bytes <= 0) {
+        if (num_bytes < 0) {
             LOG(Error) << "RecvError 2\n";
             return StatusCode::RecvError;
         } else {
-            client.recv_buffer.enqueue(tmp_buffer, received_bytes); // TODO
+            client.recv_buffer.enqueue(tmp_buffer, num_bytes); 
         }
     }
 
@@ -149,4 +149,41 @@ StatusCode accept_new_client(int listener) {
             << " on socket " << newfd << std::endl;
     }
     return newfd;
+}
+
+int TransferLayer::get_listener(ServerConf conf) {
+    // AF_INET: IPv4 protocol
+    // SOCK_STREAM: TCP protocol
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd < 0) {
+        LOG(Error) << "Server socket init error" << endl;
+        graceful_return("socket", StatusCode::CreateSocket);
+    }
+
+    int opt = 1;
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        LOG(Error) << "Server setsockopt error" << endl;
+        graceful_return("setsockopt", StatusCode::Setsockopt);
+    }
+
+    int flags = fcntl(server_fd, F_GETFL, 0);
+    fcntl(server_fd, F_SETFL, flags|O_NONBLOCK);
+
+    struct sockaddr_in server_addr; 
+    server_addr.sin_family = AF_INET; 
+    // INADDR_ANY means 0.0.0.0(localhost), or all IP of local machine.
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(conf.port); 
+    int server_addrlen = sizeof(server_addr);
+    if (bind(server_fd, (struct sockaddr *) &server_addr, server_addrlen) < 0) {
+        LOG(Error) << "Server bind error" << endl;
+        graceful_return("bind", StatusCode::Bind);
+    }
+
+    if (listen(server_fd, TCP_LISTEN_NUM) < 0) {
+        LOG(Error) << "Server listen error" << endl;
+        graceful_return("listen", StatusCode::Listen); 
+    }
+    LOG(Info) << "Server socket init ok with port: " << conf.port << endl;
+    return socket_fd;
 }

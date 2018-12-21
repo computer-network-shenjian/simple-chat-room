@@ -1,4 +1,4 @@
-#include "test.hpp"
+#include "../include/conf.hpp"
 using namespace std;
 
 int main() {
