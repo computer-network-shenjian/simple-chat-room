@@ -4,6 +4,9 @@
 #include <queue>
 
 class Client {
+
+    int client_id;
+
     CircularQueue recv_buffer;
     std::queue< std::vector<uint8_t> > send_buffer;
 

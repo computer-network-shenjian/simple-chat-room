@@ -46,10 +46,12 @@ public:
 
     bool try_send(const Client &client);
 
-    list<Client> session_set;
+    // find client by client_id in session_set
+    bool is_client_active(int client_id);
 
 private:
-    int server_fd;
+
+    list<Client> session_set;
 
     // loop accept client
     StatusCode loop_accept_client();
@@ -57,7 +59,7 @@ private:
     int reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds);
 
     // If false, return -1, else return socket code.
-    int get_listener(const ServerConf conf);
+    int get_listener(const ServerConf &conf);
 
 };
 
