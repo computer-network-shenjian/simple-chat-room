@@ -51,9 +51,11 @@
 
  > **respond type:**
  >
- > > >|         0x0         |   0x1   |
- > > >| :-----------------: | :-----: |
- > > >| user does not exist | succeed |
+ > |         0x0         |   0x1   |
+ > | :-----------------: | :-----: |
+ > | user does not exist | succeed |
+ >
+ >
 
 #### passwd `0x02`
 
@@ -110,6 +112,12 @@
 |  0   |            1, 2            |   3    |         4 ... 31         |
 | :--: | :------------------------: | :----: | :----------------------: |
 | 0x06 | user_name length (2 bytes) | direct | user_name (host to user) |
+
+direct: 
+
+​	0 	 me -> others
+
+​	1 	others -> me
 
 #### history  `0x07`
 
