@@ -6,7 +6,6 @@
 #include "Log.h"
 // #include <iostream>
 
-DatabaseConnection *DatabaseConnection::obj = NULL;
 
 class ApplicationLayer{
         private:

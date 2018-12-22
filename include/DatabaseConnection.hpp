@@ -29,15 +29,12 @@ class DatabaseConnection {
 		int  retrive_history_count(string account_name);
 		void push_message(string account_main, string account_sub, string message); // push into history table
 		static DatabaseConnection *obj;
+		static DatabaseConnection *get_instance(); 		  	 // return a class instance	
 		MYSQL_RES *MysqlExecCommand(string command);
 	private:
 		uint64_t id;
 		MYSQL *MysqlHandler;
 };
-
-DatabaseConnection *get_instance(); // return a class instance
-
-DatabaseConnection dc;
 
 // // Initialize Mysql connection
 // // Connect to Database

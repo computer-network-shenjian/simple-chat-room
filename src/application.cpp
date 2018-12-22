@@ -3,10 +3,10 @@
 using namespace fly;
 const string InitPassword = "123456";
 
+DatabaseConnection *DatabaseConnection::obj = NULL;
 ApplicationLayer::ApplicationLayer()
 {
         // initialize DatabaseConnection class
-        cout << DatabaseConnection::get_instance() << endl;
         DatabaseConnection::get_instance()->DatabaseInit();
 
         return;
@@ -95,4 +95,6 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                         }
                 }
         }
+
+        return ;
 }

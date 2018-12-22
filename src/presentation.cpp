@@ -3,7 +3,8 @@
 #include "../include/presentation.hpp"
 #include "../include/application.hpp"
 
-ApplicationLayer AppLayerInstance;
+extern ApplicationLayer AppLayerInstance;
+
 using namespace std;
 
 vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){

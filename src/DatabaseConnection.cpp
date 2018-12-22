@@ -4,12 +4,13 @@ const char* kDatabaseName = "Simple_chat_room";
 const char* kDatabaseUserId= "cyanic";
 const char* kDatabasePassword= "1985727yyhstc";
 
-DatabaseConnection* get_instance() {
-	if (!dc.obj)
+DatabaseConnection *DatabaseConnection::get_instance() // return a class instance	
+{
+	if (!obj)
 	{
-		dc.obj = new DatabaseConnection;
+		obj = new DatabaseConnection;
 	}
-	return dc.obj;
+	return obj;
 }
 
 // Initialize Mysql connection
