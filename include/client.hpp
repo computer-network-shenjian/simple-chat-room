@@ -5,9 +5,10 @@
 #include <vector>
 #include <queue>
 
-#include "types.hpp" 
-
 class Client {
+
+    int client_id;
+
     CircularQueue recv_buffer;
     std::queue< std::vector<uint8_t> > send_buffer;
 
@@ -23,7 +24,8 @@ public:
 
     Client(int socket_fd, size_t buffer_size) : 
         socket_fd(socket_fd),
-        recv_buffer(buffer_size)
+        recv_buffer(buffer_size), 
+        send_buffer(buffer_size)
     {}
 
     ~Client(); // Should call the destructor of the underlying CircularQueue

@@ -39,7 +39,6 @@ StatusCode TransferLayer::try_recv(const Client &client) {
 StatusCode TransferLayer::try_send(const Client &client) {
     vector<uint8_t> &v = client.send_buffer.front();
     size_t size_before = v.size();
-    // TODO: should send take any flags?
     int num_bytes = send(client.socket_fd, v.data(), size_before, MSG_NOSIGNAL);
     if (num_bytes <= 0) {
         LOG(Error) << "SendError, send returned " << num_bytes << endl;
@@ -60,7 +59,7 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
     fd_set read_fds, write_fds;
 
     for (;;) {
-        int fdmax = reset_rw_fd_sets(session_set, fd_set &read_fds, fd_set &write_fds);
+        int fdmax = reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds);
         FD_SET(listener, read_fds); // also listen for new connections
 
         int rv = select(fdmax+1, read_fds, write_fds, NULL, NULL);
@@ -75,19 +74,29 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
                 // firstly, iterate through map and process clients in session
                 for (auto &el : session_set) {
                     if (FD_ISSET(el.socket_fd, &read_fds)) {
-                        try_recv(el);
-                        presentation_layer.transfer_to_presentation(el);
+<<<<<<< HEAD
+                        if (try_recv(el) != StatusCode::OK) {
+                            presentation_layer.transfer_to_presentation(el);
+                        } else {
+                            // remove client here
+                        }
                     }
                     
                     if (FD_ISSET(el.socket_fd, &write_fds)) {
-                        try_send(el);
-                        presentation_layer.transfer_to_presentation(el);
+                        if (try_send(el) != StatusCode::OK) {
+                            presentation_layer.transfer_to_presentation(el);
+                            if (el.state == SessionState::Error) {
+                                // remove client
+                            }
+                        } else {
+                            // remove client here
+                        }
                     }
                 }
 
                 // and lastly, check for new connections 
                 if (FD_ISSET(listener, &read_fds)) {
-                    accept_new_client(listener, socket_client_map);
+                    accept_new_client(listener);
                 }
                 
                 break;
@@ -95,7 +104,7 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
     } // end of main loop
 }
 
-int TransferLayer::reset_rw_fd_sets(const list<Client> &session_set, fd_set &read_fds, fd_set &write_fds) {
+int TransferLayer::reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds) {
     int maxfd = 0;
     for (const Client &client : session_set) {
         // set read_fds if have enough buffer size to receive at least the header
@@ -153,7 +162,12 @@ StatusCode accept_new_client(int listener, list<Client> &session_set) {
     return newfd;
 }
 
-int TransferLayer::get_listener(ServerConf conf) {
+bool is_client_active(int client_id) {
+    return find_if(session_set.begin(), session_set.end(), 
+            [client_id](const Client &c){ return c.client_id = client_id; });
+}
+
+int TransferLayer::get_listener(const ServerConf &conf) {
     // AF_INET: IPv4 protocol
     // SOCK_STREAM: TCP protocol
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -182,10 +196,11 @@ int TransferLayer::get_listener(ServerConf conf) {
         graceful_return("bind", StatusCode::Bind);
     }
 
-    if (listen(server_fd, TCP_LISTEN_NUM) < 0) {
+    if (listen(server_fd, 10) < 0) {
         LOG(Error) << "Server listen error" << endl;
         graceful_return("listen", StatusCode::Listen); 
     }
     LOG(Info) << "Server socket init ok with port: " << conf.port << endl;
-    return socket_fd;
+    return server_fd;
 }
+
