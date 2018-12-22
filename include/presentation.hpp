@@ -1,21 +1,21 @@
-#include "client.hpp"
+#include "types.hpp"
 
 
 // A simple class responsible for the conversion of data between the forms of CircularQueue
 // and DataPacket
 
-class PresentLayer {
+class PresentationLayer {
 private:
     uint16_t packet_size;
 
-    vector<uint8_t> pack_Response(Message_To_Pre message);
-    vector<uint8_t> pack_Config(Message_To_Pre message);
+    std::vector<uint8_t> pack_Response(Message_To_Pre message);
+    std::vector<uint8_t> pack_Config(Message_To_Pre message);
     //client is sender client
-    vector<uint8_t> pack_TextUserName(Client * client);    
-    vector<uint8_t> pack_Text(Client * client);  
+    std::vector<uint8_t> pack_TextUserName(Client * client);    
+    std::vector<uint8_t> pack_Text(Client * client);  
 
-    vector<uint8_t> pack_HistoryUserName(Message_To_Pre * message, string host_name);
-    vector<uint8_t> pack_History(Message_To_Pre * message);
+    std::vector<uint8_t> pack_HistoryUserName(Message_To_Pre * message, std::string host_name);
+    std::vector<uint8_t> pack_History(Message_To_Pre * message);
 
    // vector<uint8_t> pack_String(Message_To_Pre message);
 
@@ -28,7 +28,6 @@ private:
 
 public:
     PresentationLayer() = default;
-    ~PresentationLayer();
 
     StatusCode pack_Message(Client *client);
     // function: pack Message from appLayer

@@ -1,36 +1,39 @@
+#ifndef PRESENT_H
+#define PRESENT_H
 #include "../include/presentation.hpp"
+#include "../include/application.hpp"
 
+ApplicationLayer AppLayerInstance;
 using namespace std;
 
-
-vector<uint8_t> PresentLayer::pack_Response(Message_To_Pre message){
+vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){
     static vector<uint8_t> temp;
-    uint8_t descriptor;
+    uint8_t* descriptor;
     uint16_t length;
 
     //descriptor
-    descriptor = message.type_;
+    descriptor = (uint8_t *)&message.type_;
     temp.clear();
-    temp.push_back(descriptor);
+    temp.push_back(*descriptor);
 
     switch(message.type_){
-        case InfoResponse:             
+        case PacketType::InfoResponse:             
             //length = 1
             length = htons((uint16_t)1 );    
             temp.push_back((uint8_t)(length >> 8) );
             temp.push_back((uint8_t)(length) );
-            temp.push_back(message.respond_);
+            temp.push_back(*((uint8_t*)&message.respond_));
             break;
 
-        case PasswordResponse:
+        case PacketType::PasswordResponse:
             //length = 1
             length = htons((uint16_t)1 );    
             temp.push_back((uint8_t)(length >> 8) );
             temp.push_back((uint8_t)(length) );
-            temp.push_back(message.respond_);
+            temp.push_back(*((uint8_t*)&message.respond_));
             break;
 
-        case SyncEnd:
+        case PacketType::SyncEnd:
             //length = 0
             temp.push_back((uint8_t)0); 
             temp.push_back((uint8_t)0);
@@ -40,7 +43,7 @@ vector<uint8_t> PresentLayer::pack_Response(Message_To_Pre message){
     return temp;
 }
 
-vector<uint8_t> PresentLayer::pack_Config(Message_To_Pre message){
+vector<uint8_t> PresentationLayer::pack_Config(Message_To_Pre message){
     static vector<uint8_t> temp;
     uint8_t descriptor;
     uint16_t length;
@@ -49,7 +52,7 @@ vector<uint8_t> PresentLayer::pack_Config(Message_To_Pre message){
     temp.clear();
 
     //descriptor
-    temp.push_back(message.type_);
+    temp.push_back(*((uint8_t*)&message.type_));
 
     //conf length = 2
     length = htons((uint16_t)2 );    
@@ -64,7 +67,7 @@ vector<uint8_t> PresentLayer::pack_Config(Message_To_Pre message){
     return temp;
 }
 
-vector<uint8_t> PresentLayer::pack_TextUserName(Client * client){
+vector<uint8_t> PresentationLayer::pack_TextUserName(Client * client){
     vector<uint8_t> temp;
     uint8_t descriptor;
     uint16_t length;
@@ -72,7 +75,7 @@ vector<uint8_t> PresentLayer::pack_TextUserName(Client * client){
     Message_To_App message = client->message_ptoa;
 
     //push back: descriptor
-    temp.push_back(PacketType::TextUsername);
+    temp.push_back((uint8_t)PacketType::TextUsername);
 
     //push back: user name length   (user name = client->host_username_)
     length = htons((uint16_t)client->host_username_.length() );
@@ -84,13 +87,13 @@ vector<uint8_t> PresentLayer::pack_TextUserName(Client * client){
     c = client->host_username_.c_str();
     while((*c) != '\0'){
         temp.push_back((uint8_t)(*c) );
-        ch++;
+        c++;
     }
 
     return temp;
 }
 
-vector<uint8_t> PresentLayer::pack_Text(Client * client){
+vector<uint8_t> PresentationLayer::pack_Text(Client * client){
     vector<uint8_t> temp;
     uint8_t descriptor;
     uint16_t length;
@@ -98,7 +101,7 @@ vector<uint8_t> PresentLayer::pack_Text(Client * client){
     Message_To_App message = client->message_ptoa;
 
     //push back: descriptor
-    temp.push_back(PacketType::Text); 
+    temp.push_back((uint8_t)PacketType::Text); 
 
     //push back: text length
     length = htons((uint16_t)message.media_text_.length() );
@@ -110,23 +113,23 @@ vector<uint8_t> PresentLayer::pack_Text(Client * client){
     c = message.media_text_.c_str();
     while((*c) != '\0'){
         temp.push_back((uint8_t)(*c) );
-        ch++;
+        c++;
     }
 
     return temp;
 }
 
-vector<uint8_t> PresentLayer::pack_HistoryUserName(Message_To_Pre * message, string host_name){
+vector<uint8_t> PresentationLayer::pack_HistoryUserName(Message_To_Pre * message, string host_name){
     uint8_t direct;
     vector<uint8_t> temp;
     uint16_t length;
     string str;
 
     //push back: descriptor
-    temp.push_back(PacketType::HistoryUserName);
+    temp.push_back((uint8_t)PacketType::HistoryUserName);
 
     //direct
-    str = message->history_.begin();
+    str = *message->history_.begin();
     if(str == host_name)
         direct = 0; //me to others
     else
@@ -138,7 +141,7 @@ vector<uint8_t> PresentLayer::pack_HistoryUserName(Message_To_Pre * message, str
         message->history_.erase(message->history_.begin());     
         
         //push_back: user_name length
-        str = message->history_.begin(); 
+        str = *message->history_.begin(); 
         length = htons((uint16_t)(str.length()) );
         temp.push_back((uint8_t)(length >> 8) );
         temp.push_back((uint8_t)(length) );
@@ -151,13 +154,13 @@ vector<uint8_t> PresentLayer::pack_HistoryUserName(Message_To_Pre * message, str
         c = str.c_str();
         while((*c) != '\0'){
             temp.push_back((uint8_t)(*c) );
-            ch++;
+            c++;
         }
     }
     //others to me
     else{    
         //push_back: user_name length
-        str = message->history_.begin(); 
+        str = *message->history_.begin(); 
         length = htons((uint16_t)(str.length()) );
         temp.push_back((uint8_t)(length >> 8) );
         temp.push_back((uint8_t)(length) );
@@ -167,7 +170,7 @@ vector<uint8_t> PresentLayer::pack_HistoryUserName(Message_To_Pre * message, str
         c = str.c_str();
         while((*c) != '\0'){
             temp.push_back((uint8_t)(*c) );
-            ch++;
+            c++;
         }
 
         //push_back: direct
@@ -180,21 +183,21 @@ vector<uint8_t> PresentLayer::pack_HistoryUserName(Message_To_Pre * message, str
     return temp;
 }
 
-vector<uint8_t> PresentLayer::pack_History(Message_To_Pre * message){
+vector<uint8_t> PresentationLayer::pack_History(Message_To_Pre * message){
     vector<uint8_t> temp;
     uint8_t descriptor;
     uint16_t length;
     string str;
 
     //push back: descriptor
-    if(message->type_ == Configuration)
-        temp.push_back(PacketType::History);
+    if(message->type_ == PacketType::Configuration)
+        temp.push_back((uint8_t)PacketType::History);
 
-    if(message->type_ == Text)
-        temp.push_back(PacketType::Text);
+    if(message->type_ == PacketType::Text)
+        temp.push_back((uint8_t)PacketType::Text);
 
     //push back: text length
-    str = message->history_.begin();
+    str = *message->history_.begin();
     length = htons((uint16_t)(str.length()) );
     temp.push_back((uint8_t)(length >> 8) );
     temp.push_back((uint8_t)(length) );
@@ -204,7 +207,7 @@ vector<uint8_t> PresentLayer::pack_History(Message_To_Pre * message){
     c = str.c_str();
     while((*c) != '\0'){
         temp.push_back((uint8_t)(*c) );
-        ch++;
+        c++;
     }
 
     //erase text
@@ -213,7 +216,7 @@ vector<uint8_t> PresentLayer::pack_History(Message_To_Pre * message){
     return temp;
 }
 
-StatusCode PresentLayer::pack_Message(Client *client){
+StatusCode PresentationLayer::pack_Message(Client *client){
     Client *recv_client;
     DataPacket packet;
     Message_To_Pre message;
@@ -264,7 +267,7 @@ StatusCode PresentLayer::pack_Message(Client *client){
             temp_str = pack_TextUserName(client);
             recv_client->send_buffer.push(temp_str);
 
-            temp_str = pack_Text(message_ptoa);
+            temp_str = pack_Text(client);
             recv_client->send_buffer.push(temp_str);
 
             return StatusCode::OK;
@@ -284,8 +287,8 @@ StatusCode PresentLayer::pack_Message(Client *client){
     return StatusCode::OK; 
 }
 
-StatusCode PresentLayer::unpack_DataPacket(Client *client){
-  while( client->recv_buffer.has_complete_packet()) ){
+StatusCode PresentationLayer::unpack_DataPacket(Client *client){
+  while( client->recv_buffer.has_complete_packet()){
         //client->recv_buffer.has_complete_packet()
         DataPacket packet;
         Message_To_App message;
@@ -295,42 +298,42 @@ StatusCode PresentLayer::unpack_DataPacket(Client *client){
         packet_size = packet.data.size() + 3;
 
         //start unpacking 
-        if((packet.type == Info) || (packet.type == Password)
-            || (packet.type == HistoryUserName) || (packet.type == History)
-            || (packet.type == TextUsername) || (packet.type == Text)
-            || (packet.type == FileUsername) || (packet.type == FileName)
-            || (packet.type == FileInProgress) || (packet.type == FileEnd) )
+        if((packet.type == PacketType::Info) || (packet.type == PacketType::Password)
+            || (packet.type == PacketType::HistoryUserName) || (packet.type == PacketType::History)
+            || (packet.type == PacketType::TextUsername) || (packet.type == PacketType::Text)
+            || (packet.type == PacketType::FileUsername) || (packet.type == PacketType::FileName)
+            || (packet.type == PacketType::FileInProgress) || (packet.type == PacketType::FileEnd) )
         {
             temp_data = unpack_String(packet);
             switch(packet.type){
-                case Info:
+                case PacketType::Info:
                     message.user_name_ = (char *)temp_data;
                     break;
-                case Password:
+                case PacketType::Password:
                     message.password_ = (char *)temp_data;
                     break;
-                case HistoryUserName:
+                case PacketType::HistoryUserName:
                     message.user_name_ = (char *)temp_data;
                     break;
-                case History:
+                case PacketType::History:
                     message.media_text_ = (char *)temp_data;
                     break;
-                case TextUsername:
+                case PacketType::TextUsername:
                     message.user_name_ = (char *)temp_data;
                     break;
-                case Text:
+                case PacketType::Text:
                     message.media_text_ = (char *)temp_data;
                     break;
-                case FileUsername:
+                case PacketType::FileUsername:
                     message.user_name_ = (char *)temp_data;
                     break;
-                case FileName:
+                case PacketType::FileName:
                     message.file_name_ = (char *)temp_data;
                     break;
-                case FileInProgress:
+                case PacketType::FileInProgress:
                     message.media_file_ = (char *)temp_data;
                     break;
-                case FileEnd:                
+                case PacketType::FileEnd:                
                     message.media_file_ = (char *)temp_data;
                     break;
                 default:
@@ -338,21 +341,21 @@ StatusCode PresentLayer::unpack_DataPacket(Client *client){
             }
         }//end of if
      
-        if(packet.type == Configuration)
+        if(packet.type == PacketType::Configuration)
                 message = unpack_Configuration(packet);
 
-        if(packet.type == GroupTextUserlist)
+        if(packet.type == PacketType::GroupTextUserlist)
                 message = unpack_GroupTextUserList(packet);
 
         message.type_ = packet.type;
-        client->message = message;
+        client->message_ptoa = message;
 
         AppLayerInstance.MessageToApp(client);
     }
     return StatusCode::OK;
 }
 
-unsigned char * PresentLayer::unpack_String(DataPacket packet){
+unsigned char * PresentationLayer::unpack_String(DataPacket packet){
     vector<uint8_t>::iterator iter;
     static unsigned char temp[kMaxPacketLength];
 
@@ -365,7 +368,7 @@ unsigned char * PresentLayer::unpack_String(DataPacket packet){
     return temp;
 }
 
-Message_To_App PresentLayer::unpack_Configuration(DataPacket packet){
+Message_To_App PresentationLayer::unpack_Configuration(DataPacket packet){
     Message_To_App message;
     vector<uint8_t>::iterator iter;
     unsigned short st;   
@@ -379,7 +382,7 @@ Message_To_App PresentLayer::unpack_Configuration(DataPacket packet){
     return message;
 }
 
-Message_To_App PresentLayer::unpack_GroupTextUserList(DataPacket packet){
+Message_To_App PresentationLayer::unpack_GroupTextUserList(DataPacket packet){
     Message_To_App message;
     vector<uint8_t>::iterator iter;
     string temp_str;
@@ -406,3 +409,5 @@ Message_To_App PresentLayer::unpack_GroupTextUserList(DataPacket packet){
 
     return message;
 }
+
+#endif

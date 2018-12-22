@@ -1,45 +1,16 @@
-#include  "boost/lexical_cast.hpp" 
-#include  <unistd.h>
-#include  <iomanip>
-#include  <iostream>
-#include  <mysql.h>
-#include  <vector>
-#include  <string>
-using namespace std;
-
-// #define DatabaseName "Simple_chat_room"
-// #define DatabaseUserId "cyanic"
-// #define DatabasePassword "1985727yyhstc"
+#include "../include/DatabaseConnection.hpp"
 
 const char* kDatabaseName = "Simple_chat_room";
 const char* kDatabaseUserId= "cyanic";
 const char* kDatabasePassword= "1985727yyhstc";
 
-// const string kDatabaseName = "Simple_chat_room";
-
-// use singleton design
-// example: https://sourcemaking.com/design_patterns/singleton/cpp/1
-class DatabaseConnection {
-	public:
-		void DatabaseInit();
-	   	bool check_account(string account_name);	 		 // check if an account is registered
-		bool check_password(string account_name, string password);
-		vector<string>  retrive_message(string account_main); 
-		int  retrive_history_count(string account_name);
-		void push_message(string account_main, string account_sub, string message); // push into history table
-		static DatabaseConnection *get_instance() 		  	 // return a class instance	
-		{
-			if(!obj) {
-				obj = new DatabaseConnection;
-			}
-			return obj;
-		}
-		MYSQL_RES *MysqlExecCommand(string command);
-	private:
-		uint64_t id;
-		MYSQL *MysqlHandler;
-		static DatabaseConnection *obj;
-};
+DatabaseConnection* get_instance() {
+	if (!dc.obj)
+	{
+		dc.obj = new DatabaseConnection;
+	}
+	return dc.obj;
+}
 
 // Initialize Mysql connection
 // Connect to Database

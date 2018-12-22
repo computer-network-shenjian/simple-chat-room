@@ -58,5 +58,5 @@ int allocate_shared_memory(int shared_segment_size);
 int deallocate_shared_memory(int segment_id);
 
 // write num_bytes many bytes pointed by ptr_bytes to file fn
-void write_bytes_to_file(string fn, uint8_t *ptr_bytes, int num_bytes);
+void write_bytes_to_file(std::string fn, uint8_t *ptr_bytes, int num_bytes);
 

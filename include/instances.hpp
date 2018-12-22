@@ -1,5 +1,10 @@
+#ifndef INSTANCE_HPP
+#define INSTANCE_HPP
+
 #include "application.hpp"
 #include "presentation.hpp"
 
-ApplicationLayer AppLayerInstance;
-PresentationLayer PreLayerInstance;
+extern ApplicationLayer AppLayerInstance;
+extern PresentationLayer PreLayerInstance;
+
+#endif

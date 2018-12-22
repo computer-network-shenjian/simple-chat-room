@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <string>
+#include "Log.h"
 
 const int MaxHistoryLen = 300;
 const int MaxFileLen = 1021;    // 1 KB    
@@ -114,7 +115,7 @@ private:
 };
 
 
-class Message_To_App{
+struct Message_To_App{
     PacketType type_;
     std::string user_name_;
     std::string password_; 
@@ -142,5 +143,40 @@ struct file{
     std::string filePath;
 };
 
+
+// #endif
+
+// #ifndef CLIENT_H
+// #define CLIENT_H
+
+#include <queue>
+
+class Client {
+public:
+
+    int client_id;
+
+    CircularQueue recv_buffer;
+    std::queue< std::vector<uint8_t> > send_buffer;
+
+    int socket_fd;
+    SessionState state = SessionState::Acceptance;
+    std::string host_username_;
+    Message_To_App message_ptoa;
+    Message_To_Pre message_atop;
+
+    // should be always greater than kHeaderSize (reset to this)
+    // updated when packet is received and on state change
+
+    Client(int socket_fd, size_t buffer_size) : 
+        socket_fd(socket_fd),
+        recv_buffer(buffer_size) 
+    {}
+
+    // ~Client(); // Should call the destructor of the underlying CircularQueue
+
+private:
+
+};
 
 #endif
