@@ -1,6 +1,11 @@
+#ifndef TYPES_HPP
+#define TYPES_HPP
+
+
 #include <vector>
 #include <arpa/inet.h>
 #include <stdint.h>
+#include <string>
 
 const int MaxHistoryLen = 300;
 const int MaxFileLen = 1021;    // 1 KB    
@@ -9,7 +14,6 @@ const int MaxFileLen = 1021;    // 1 KB
 const size_t kSessionSetSize = 5; // max number of active sessions
 const unsigned int kHeaderSize = 3; // network packet header size
 const size_t kMaxPacketLength = 1024; // TODO: double check on this number
-const unsigned int kHeaderSize = 3; // network packet header size
 const size_t kRecvBufferSize = kMaxPacketLength * 3;
 
 // used as the first byte of data packets
@@ -35,7 +39,7 @@ enum class PacketType : uint8_t {
 struct DataPacketHeader {
     PacketType type;
     uint16_t payload_size;
-}
+};
     
 struct DataPacket {
     PacketType type;
@@ -58,6 +62,9 @@ enum class StatusCode : int {
     Setsockopt = -11,
     Bind = -12,
     Listen = -13,
+
+    //present layer error code : start from -20
+    NoCompletePacket = -20
 };
 
 // Server response type
@@ -129,17 +136,25 @@ class Message_To_App{
     std::vector<std::string> user_name_list_;
     std::string file_name_;
     std::string media_file_;
-    unsigned int config_;
+    unsigned short config_; // 2 bytes in TransLayer
 };
 
+struct Message_To_Pre{
+    PacketType type_;
+    ResponseType respond_; 
+    int config_;
+    std::vector<std::string> history_;
+};
 
 // not sure if struct group_text should be kept or just use text[] instead ?
 struct group_text{
-    vector<string> user_list;
-    string data;
+    std::vector<std::string> user_list;
+    std::string data;
 };
 
 struct file{
-    string filePath;
+    std::string filePath;
 };
 
+
+#endif

@@ -1,9 +1,97 @@
 #include "../include/presentation.hpp"
 
-using namespace std;
 
 
-vector<uint8_t> * PresentationLayer::pack_Response(Message_To_Pre message){
+
+// enum class PacketType : uint8_t {
+//     Info = 0x00,    
+//     InfoResponse = 0x01,
+//     Password = 0x02,
+//     PasswordResponse = 0x03,
+//     Refuse = 0x04,
+//     Configuration = 0x05,
+//     HistoryUserName = 0x06,
+//     History = 0x07,
+//     SyncEnd = 0x08,
+//     TextUsername = 0x09,
+//     Text = 0x0A,
+//     FileName = 0x0B,
+//     FileInProgress = 0x0C,
+//     GroupTextUserlist = 0x0D,
+//     FileEnd = 0x0E,
+//     FileUsername = 0x0F,
+// };
+
+
+
+// Refuse			PacketType 	
+// SyncEnd			PacketType		
+// InfoResponse 	PacketType 		ResponseType 
+// PasswordResponse PacketType		ResponseType
+// Configure		PacketType 		struct configure
+// History 			PacketType  	struct chatHistory
+// text 			PacketType  	struct text
+// file 			PacketType 		struct file
+// g_text_usrlist 	PacketType  	vector<string>
+// Info 			PacketType 		string
+// Password 		PacketType  	string
+// file_name 		PacketType 		string 
+class Message_To_App{
+    PacketType type_;
+    std::string user_name_;
+    std::string password_; 
+    std::string media_text_;
+    std::vector<std::string> user_name_list_;
+    std::string file_name_;
+    std::string media_file_;
+    unsigned int config_;
+};
+
+
+class Message_To_Pre{
+    PacketType type_;
+    ResponseType respond_; 
+    int config_;
+    vector<string> history_;
+};
+
+
+class PresentLayer {
+private:
+    uint16_t packet_size;
+
+    vector<uint8_t> * pack_Response(Message_To_Pre message);
+    vector<uint8_t> * pack_String(Message_To_Pre message);
+   // vector<uint8_t> * pack_Signal(Message_To_Pre message);
+    vector<uint8_t> * pack_Config(Message_To_Pre message);
+    vector<uint8_t> * pack_HistoryUserName(Message_To_Pre message);
+
+    unsigned char * unpack_String(DataPacket packet);
+    Message_To_App  unpack_Configuration(DataPacket packet);
+    Message_To_App  unpack_GroupTextUserList(DataPacket packet);
+
+public:
+    PresentationLayer() = default;
+    ~PresentationLayer();
+
+    StatusCode pack_Message(Client *client);
+    // function: pack Message from appLayer
+    // status: send
+    // precondition: message.type_ matches the state machine
+    // return:
+    //         OK: pack message and write to client.send_buffer
+    //         Error: message.type_ doesn't match the state machine
+    
+    StatusCode unpack_DataPacket(Client *client);
+    // function: unpack DataPacket from transLayer
+    // status: recv
+    // precondition: client->recv_buffer.dequeue() returns a DataPacket
+    // return: 
+    //         OK:  unpack a DataPacket from recv_buffer and write Message_To_App succeed
+    //         NoCompletePacket:   no complete packet in recv_buffer
+};
+
+vector<uint8_t> * PresentLayer::pack_Response(Message_To_Pre message){
     static vector<uint8_t> temp;
     uint8_t descriptor;
     uint16_t length;
@@ -40,7 +128,7 @@ vector<uint8_t> * PresentationLayer::pack_Response(Message_To_Pre message){
     return temp;
 }
 
-vector<uint8_t> * PresentationLayer::pack_Config(Message_To_Pre message){
+vector<uint8_t> * PresentLayer::pack_Config(Message_To_Pre message){
     static vector<uint8_t> temp;
     uint8_t descriptor;
     uint16_t length;
@@ -64,7 +152,7 @@ vector<uint8_t> * PresentationLayer::pack_Config(Message_To_Pre message){
     return temp;
 }
 
-vector<uint8_t> * PresentationLayer::pack_String(Message_To_Pre message){
+vector<uint8_t> * PresentLayer::pack_String(Message_To_Pre message){
     static vector<uint8_t> temp;
     uint8_t descriptor;
     uint16_t length;
@@ -89,11 +177,11 @@ vector<uint8_t> * PresentationLayer::pack_String(Message_To_Pre message){
     return temp;
 }
 
-vector<uint8_t> * PresentationLayer::pack_HistoryUserName(Message_To_Pre message){
+vector<uint8_t> * PresentLayer::pack_HistoryUserName(Message_To_Pre message){
 
 }
 
-StatusCode PresentationLayer::pack_Message(Client *client){
+StatusCode PresentLayer::pack_Message(Client *client){
     DataPacket packet;
     Message_To_Pre message;
     vector<uint8_t> temp_str;
@@ -126,12 +214,13 @@ StatusCode PresentationLayer::pack_Message(Client *client){
     return StatusCode::OK; 
 }
 
-StatusCode PresentationLayer::unpack_DataPacket(Client *client){
+StatusCode PresentLayer::unpack_DataPacket(Client *client){
     AppLayerInstance.MessageToApp(client);
     return StatusCode::OK;
 
 
     //check if there is complete packet
+
 
     if(!client->recv_buffer.has_complete_packet())
         return StatusCode::NoCompletePacket;
@@ -200,7 +289,7 @@ StatusCode PresentationLayer::unpack_DataPacket(Client *client){
     return StatusCode::OK;
 }
 
-unsigned char * PresentationLayer::unpack_String(DataPacket packet){
+unsigned char * PresentLayer::unpack_String(DataPacket packet){
     vector<uint8_t>::iterator iter;
     static unsigned char temp[kMaxPacketLength];
 
@@ -213,7 +302,7 @@ unsigned char * PresentationLayer::unpack_String(DataPacket packet){
     return temp;
 }
 
-Message_To_App PresentationLayer::unpack_Configuration(DataPacket packet){
+Message_To_App PresentLayer::unpack_Configuration(DataPacket packet){
     Message_To_App message;
     vector<uint8_t>::iterator iter;
     unsigned short st;   
@@ -227,7 +316,7 @@ Message_To_App PresentationLayer::unpack_Configuration(DataPacket packet){
     return message;
 }
 
-Message_To_App PresentationLayer::unpack_GroupTextUserList(DataPacket packet){
+Message_To_App PresentLayer::unpack_GroupTextUserList(DataPacket packet){
     Message_To_App message;
     vector<uint8_t>::iterator iter;
     string temp_str;

@@ -17,12 +17,12 @@ StatusCode TransferLayer::try_recv(const Client &client) {
             } else {
                 // recv correct
                 received_bytes += num_bytes;
-                client.recv_buffer.enqueue(tmp_buffer, received_bytes); 
+                client.recv_buffer.enqueue(tmp_buffer, received_bytes); // TODO
             }
         }
-    }
+    } 
 
-    if (!client.recv_buffer.is_full() && client.recv_buffer.current_packet_size()) { // buffer not full and has data to recv
+    if (!client.recv_buffer.is_full() && client.recv_buffer.current_packet_size()) {
         int num_bytes = recv(client.socket_fd, tmp_buffer, client.recv_buffer.get_num_free_bytes(), 0);
         // error handling
         if (num_bytes < 0) {
@@ -45,8 +45,9 @@ StatusCode TransferLayer::try_send(const Client &client) {
         return StatusCode::SendError;
     }
 
-    if (num_bytes < size_before) { // partial send
-        v.erase(v.begin(), v.begin() + num_bytes); // move remaining data to the front 
+    if (num_bytes < size_before) {
+        // partial send
+        v.erase(v.begin(), v.begin() + num_bytes);
     } else { // complete send
         client.send_buffer.pop();
     }
@@ -73,6 +74,7 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
                 // firstly, iterate through map and process clients in session
                 for (auto &el : session_set) {
                     if (FD_ISSET(el.socket_fd, &read_fds)) {
+<<<<<<< HEAD
                         if (try_recv(el) != StatusCode::OK) {
                             presentation_layer.transfer_to_presentation(el);
                         } else {
@@ -102,7 +104,7 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
     } // end of main loop
 }
 
-int reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds) {
+int TransferLayer::reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds) {
     int maxfd = 0;
     for (const Client &client : session_set) {
         // set read_fds if have enough buffer size to receive at least the header
@@ -128,7 +130,7 @@ void *get_in_addr(struct sockaddr *sa) {
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-StatusCode accept_new_client(int listener) {
+StatusCode accept_new_client(int listener, list<Client> &session_set) {
     struct sockaddr_storage remoteaddr; // client address
     socklen_t addrlen = sizeof(remoteaddr);
 

@@ -1,4 +1,6 @@
-#include "types.hpp" 
+#ifndef CLIENT_H
+#define CLIENT_H
+
 #include <stdint.h> // uint8_t
 #include <vector>
 #include <queue>
@@ -12,6 +14,9 @@ class Client {
 
     int socket_fd;
     SessionState state = SessionState::Acceptance;
+    std::string host_username_;
+    Message_To_App message_ptoa;
+    Message_To_Pre message_atop;
 
 public:
     // should be always greater than kHeaderSize (reset to this)
@@ -30,3 +35,5 @@ public:
 private:
 
 };
+
+#endif
