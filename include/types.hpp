@@ -73,32 +73,18 @@ enum class ResponseType : uint8_t {
     OK = 1,
     ChangePassword = 2,
     WrongPassword = 3,
+    ErrorOccurs = 4,
 };
 
 // State machine definition
 // Defined almost sequentially. Actions corresponding to a state are in comments.
 enum class SessionState : unsigned int {
     Acceptance,         // On acceptance, create a new client instance
-    UserCheck,          // Match user in database, password not received yet
-    // If user exists, send a response
-    SendResponse,       // Send UserCheck response
-    UserExists,         // Branch #1, receive password and match password in database
-        PasswordReset,  // First login. Receive new password and update database
-        AlreadyLoggedIn,// Kick off the logged in session
-    PreferenceSync,     // Merge #1, send preference
-    HistorySync,        // Send history
+    Error,
+    WaitForPasswd,
+	WaitForNewPasswd,
     ServerWaiting,      
-        // Branch #2 and Merge #2, branch according to the media_type 
-        // of the next packet (either received or sent).
-        // Send has priority over read.
-        TextUsername,   // Target text username
-        Text,           // Text data
-        FileUsername,   // Target file username
-        FileName,       
-        FileInProgress, // Until a FileEnd packet is received
-        GroupUsernameList,// Target group username list
-        GroupText,      // Target group text data
-        // go back to ServerWaiting state
+	WaitForText,
 };
 
 // Used as a buffer in transfer layer, instantiated in Clients
