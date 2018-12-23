@@ -264,16 +264,43 @@ StatusCode PresentationLayer::pack_Message(Client *client){
         if(message.type_ == PacketType::Text){
             //use message_ptoa to find the receiver client
             Message_To_App message_ptoa = client->message_ptoa;
+            string client_name;
+            vector<string>::iter;
 
-            //use message_ptoa.user_name_ to find the recv_client          
-            string client_name = message_ptoa.user_name_;
-            recv_client = TransLayerInstance.find_by_username(client_name);
-            
-            temp_str = pack_TextUserName(client);
-            recv_client->send_buffer.push(temp_str);
+            //group chat
+            if(message_ptoa.user_name_list_.size() != 0){
+                while(message_ptoa.user_name_list_.size()){
+                    //find recv user
+                    iter = message_ptoa.user_name_list_.begin();
+                    client_name = *iter;
+                    recv_client = TransLayerInstance.find_by_username(client_name);
+                    
+                    //pack text user name
+                    temp_str = pack_TextUserName(client);
+                    recv_client->send_buffer.push(temp_str);
 
-            temp_str = pack_Text(client);
-            recv_client->send_buffer.push(temp_str);
+                    //pack text
+                    temp_str = pack_Text(client);
+                    recv_client->send_buffer.push(temp_str);
+
+                    //erase recv user
+                    message_ptoa.user_name_list_.erase(iter);
+                }
+            }
+            //private chat
+            else{
+                //use message_ptoa.user_name_ to find the recv_client          
+                client_name = message_ptoa.user_name_;
+                recv_client = TransLayerInstance.find_by_username(client_name);
+                
+                //pack text user name
+                temp_str = pack_TextUserName(client);
+                recv_client->send_buffer.push(temp_str);
+
+                //pack text
+                temp_str = pack_Text(client);
+                recv_client->send_buffer.push(temp_str);
+            }
 
             return StatusCode::OK;
         }//end of Text
@@ -396,16 +423,18 @@ Message_To_App PresentationLayer::unpack_GroupTextUserList(DataPacket packet){
     int len = 0;
     iter = packet.data.begin();
 
+    //write user_name_list_
     for( ; iter != packet.data.end(); iter++){
         temp_ch[len++] = *iter; 
         //if encountered '\0'
-        if((*iter) == 0){
+        if((*iter) == '\0'){
             temp_str = (char *)temp_ch;
             //push_back a new user_name
             message.user_name_list_.push_back(temp_str);
             len = 0;    //reset len = 0, and fetch the next user_name
         }
     }
+
     //add \0 to the last user_name in the user_name_list
     temp_ch[len] = '\0';
     temp_str = (char *)temp_ch;
