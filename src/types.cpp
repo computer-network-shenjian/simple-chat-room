@@ -42,11 +42,11 @@ bool CircularQueue::dequeue(uint8_t *buf, const size_t size) {
     return true;
 }
 
-size_t CircularQueue::get_num_free_bytes() {
+size_t CircularQueue::get_num_free_bytes() const {
     return _num_free_bytes;
 }
 
-size_t CircularQueue::size() {
+size_t CircularQueue::size() const {
     return _size - _num_free_bytes; // _size is actually _capacity
 }
 

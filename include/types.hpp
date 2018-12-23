@@ -1,12 +1,39 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-
 #include <vector>
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <string>
 #include "Log.h"
+
+#include <algorithm>    // std::max
+#include <queue>
+#include <list>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <ifaddrs.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <signal.h>
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/prctl.h>
+
+using namespace fly;
+
+#define graceful_return(s, x) {\
+    perror((s));\
+    return((x)); }
 
 const int MaxHistoryLen = 300;
 const int MaxFileLen = 1021;    // 1 KB    
@@ -100,8 +127,8 @@ public:
     uint16_t current_packet_size(); // note: this is actually the payload size
 
     // Also requires a getter method for _num_free_bytes here.
-    size_t get_num_free_bytes();
-    size_t size();
+    size_t get_num_free_bytes() const;
+    size_t size () const;
     bool is_empty();
     bool is_full();
     bool has_complete_packet(); // has at least one complete packet
@@ -149,7 +176,6 @@ struct file{
 // #ifndef CLIENT_H
 // #define CLIENT_H
 
-#include <queue>
 
 class Client {
 public:

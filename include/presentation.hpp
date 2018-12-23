@@ -1,5 +1,6 @@
+#ifndef PRESENTATION_LAYER_H
+#define PRESENTATION_LAYER_H
 #include "types.hpp"
-
 
 // A simple class responsible for the conversion of data between the forms of CircularQueue
 // and DataPacket
@@ -45,3 +46,5 @@ public:
     //         OK:  unpack a DataPacket from recv_buffer and write Message_To_App succeed
     //         NoCompletePacket:   no complete packet in recv_buffer
 };
+
+#endif

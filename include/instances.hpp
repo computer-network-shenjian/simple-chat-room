@@ -3,6 +3,7 @@
 
 #include "application.hpp"
 #include "presentation.hpp"
+#include "transfer.hpp"
 
 extern ApplicationLayer AppLayerInstance;
 extern PresentationLayer PreLayerInstance;

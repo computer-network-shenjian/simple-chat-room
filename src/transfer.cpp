@@ -2,14 +2,16 @@
 
 using namespace std;
 
-StatusCode TransferLayer::try_recv(const Client &client) {
+extern PresentationLayer PreLayerInstance;
+
+StatusCode TransferLayer::try_recv(Client &client) {
     uint8_t tmp_buffer[kMaxPacketLength] {};
 
     // at least receive more than header so we can determine the data length
     if (client.recv_buffer.size() < kHeaderSize) { // doesn't have header currently
         int received_bytes = 0;
         while (client.recv_buffer.size() < kHeaderSize) {
-            int num_bytes = recv(client.socket_fd, tmp_buffer, client.recv_buffer.get_num_free_bytes, 0);
+            int num_bytes = recv(client.socket_fd, tmp_buffer, client.recv_buffer.get_num_free_bytes(), 0);
             // error handling
             if (num_bytes <= 0) {
                 LOG(Error) << "RecvError 1\n";
@@ -36,7 +38,7 @@ StatusCode TransferLayer::try_recv(const Client &client) {
     return StatusCode::OK;
 }
 
-StatusCode TransferLayer::try_send(const Client &client) {
+StatusCode TransferLayer::try_send(Client &client) {
     vector<uint8_t> &v = client.send_buffer.front();
     size_t size_before = v.size();
     int num_bytes = send(client.socket_fd, v.data(), size_before, MSG_NOSIGNAL);
@@ -55,28 +57,27 @@ StatusCode TransferLayer::try_send(const Client &client) {
     return StatusCode::OK;
 }
 
-void TransferLayer::select_loop(int listener, const PresentationLayer &presentation_layer) {
+void TransferLayer::select_loop(int listener) {
     fd_set read_fds, write_fds;
 
     for (;;) {
-        int fdmax = reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds);
-        FD_SET(listener, read_fds); // also listen for new connections
+        int fdmax = reset_rw_fd_sets(read_fds, write_fds);
+        FD_SET(listener, &read_fds); // also listen for new connections
 
-        int rv = select(fdmax+1, read_fds, write_fds, NULL, NULL);
+        int rv = select(fdmax+1, &read_fds, &write_fds, NULL, NULL);
         switch (rv) {
             case -1:
                 LOG(Error) << "Select in main loop\n";
                 break;
-            case 0;
+            case 0:
                 // TODO: remove sockets that haven't responded in certain amount of time, exept for listener socket
                 break;
             default:
                 // firstly, iterate through map and process clients in session
                 for (auto &el : session_set) {
                     if (FD_ISSET(el.socket_fd, &read_fds)) {
-<<<<<<< HEAD
                         if (try_recv(el) != StatusCode::OK) {
-                            presentation_layer.transfer_to_presentation(el);
+                            PreLayerInstance.unpack_DataPacket(&el);
                         } else {
                             // remove client here
                         }
@@ -84,7 +85,7 @@ void TransferLayer::select_loop(int listener, const PresentationLayer &presentat
                     
                     if (FD_ISSET(el.socket_fd, &write_fds)) {
                         if (try_send(el) != StatusCode::OK) {
-                            presentation_layer.transfer_to_presentation(el);
+                            PreLayerInstance.unpack_DataPacket(&el);
                             if (el.state == SessionState::Error) {
                                 // remove client
                             }
@@ -110,13 +111,13 @@ int TransferLayer::reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds) {
         // set read_fds if have enough buffer size to receive at least the header
         if (client.recv_buffer.get_num_free_bytes() > kHeaderSize) {
             FD_SET(client.socket_fd, &read_fds);
-            maxfd = max(maxfd, client_socket_fd);
+            maxfd = max(maxfd, client.socket_fd);
         }
 
         // set write_fds if has data in send_buffer
-        if (!client.send_buffer.is_empty()) {
+        if (!client.send_buffer.empty()) {
             FD_SET(client.socket_fd, &write_fds);
-            maxfd = max(maxfd, client_socket_fd);
+            maxfd = max(maxfd, client.socket_fd);
         }
     }
     return maxfd;
@@ -130,7 +131,7 @@ void *get_in_addr(struct sockaddr *sa) {
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-StatusCode accept_new_client(int listener, list<Client> &session_set) {
+int TransferLayer::accept_new_client(int listener) {
     struct sockaddr_storage remoteaddr; // client address
     socklen_t addrlen = sizeof(remoteaddr);
 
@@ -138,7 +139,7 @@ StatusCode accept_new_client(int listener, list<Client> &session_set) {
     
     if (newfd == -1) {
         LOG(Error) << "accept\n";
-        return StatusCode::Accept;
+        return -1;
     } else {
         // set non-blocking connection
         int val = fcntl(newfd, F_GETFL, 0);
@@ -162,24 +163,19 @@ StatusCode accept_new_client(int listener, list<Client> &session_set) {
     return newfd;
 }
 
-bool is_client_active(int client_id) {
-    return find_if(session_set.begin(), session_set.end(), 
-            [client_id](const Client &c){ return c.client_id = client_id; });
-}
-
 int TransferLayer::get_listener(const ServerConf &conf) {
     // AF_INET: IPv4 protocol
     // SOCK_STREAM: TCP protocol
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
         LOG(Error) << "Server socket init error" << endl;
-        graceful_return("socket", StatusCode::CreateSocket);
+        graceful_return("socket", -1);
     }
 
     int opt = 1;
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
         LOG(Error) << "Server setsockopt error" << endl;
-        graceful_return("setsockopt", StatusCode::Setsockopt);
+        graceful_return("setsockopt", -1);
     }
 
     int flags = fcntl(server_fd, F_GETFL, 0);
@@ -193,12 +189,12 @@ int TransferLayer::get_listener(const ServerConf &conf) {
     int server_addrlen = sizeof(server_addr);
     if (bind(server_fd, (struct sockaddr *) &server_addr, server_addrlen) < 0) {
         LOG(Error) << "Server bind error" << endl;
-        graceful_return("bind", StatusCode::Bind);
+        graceful_return("bind", -1);
     }
 
     if (listen(server_fd, 10) < 0) {
         LOG(Error) << "Server listen error" << endl;
-        graceful_return("listen", StatusCode::Listen); 
+        graceful_return("listen", -1); 
     }
     LOG(Info) << "Server socket init ok with port: " << conf.port << endl;
     return server_fd;

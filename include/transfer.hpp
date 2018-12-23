@@ -1,26 +1,7 @@
-#include <algorithm>    // std::max
-#include <map>
-#include <set>
 #include "types.hpp"
-#include "utils.hpp"
+#include "conf.hpp"
+#include "presentation.hpp"
 
-#include <errno.h>
-#include <fcntl.h>
-#include <ifaddrs.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <signal.h>
-
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/prctl.h>
 
 class TransferLayer {
 
@@ -42,19 +23,18 @@ public:
     //
     // Precondition: client's socket_fd is readable 
     // Postcondition: the buffer is possibly left with packet data only partial received
-    bool try_recv(const Client &client);
+    StatusCode try_recv(Client &client);
 
-    bool try_send(const Client &client);
-
-    // find client by client_id in session_set
-    bool is_client_active(int client_id);
+    StatusCode try_send(Client &client);
 
 private:
 
-    list<Client> session_set;
+    std::list<Client> session_set;
 
     // loop accept client
     StatusCode loop_accept_client();
+
+    int accept_new_client(int listener);
 
     int reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds);
 
