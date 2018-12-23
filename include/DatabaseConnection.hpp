@@ -25,6 +25,7 @@ class DatabaseConnection {
 		void DatabaseInit();
 	   	bool check_account(string account_name);	 		 // check if an account is registered
 		bool check_password(string account_name, string password);
+		bool reset_password(string account_name, string password);
 		vector<string>  retrive_message(string account_main); 
 		int  retrive_history_count(string account_name);
 		void push_message(string account_main, string account_sub, string message); // push into history table

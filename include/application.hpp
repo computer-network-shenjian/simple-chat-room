@@ -12,6 +12,7 @@ class ApplicationLayer{
                 // DatabaseConnection *DatabaseConnection::obj;
                 bool CheckUser(std::string user_name_);
                 bool CheckPasswd(std::string user_name_, std::string password_);
+                bool ResetPasswd(std::string user_name_, std::string password_);
         public:
                 ApplicationLayer();
                 void MessageToApp(Client *client);

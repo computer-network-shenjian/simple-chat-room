@@ -1,7 +1,10 @@
 #include "../include/application.hpp"
+#include "../include/presentation.hpp"
 
 using namespace fly;
 const string InitPassword = "123456";
+
+extern PresentationLayer PreLayerInstance;
 
 DatabaseConnection *DatabaseConnection::obj = NULL;
 ApplicationLayer::ApplicationLayer()
@@ -22,6 +25,11 @@ bool ApplicationLayer::CheckPasswd(std::string user_name_, std::string password_
         return DatabaseConnection::get_instance()->check_password(user_name_, password_);
 }
 
+bool ApplicationLayer::ResetPasswd(std::string user_name_, std::string password_) 
+{
+        return DatabaseConnection::get_instance()->reset_password(user_name_, password_);
+}
+
 void ApplicationLayer::MessageToApp(Client *client_name_)
 {
         // main process here
@@ -35,7 +43,9 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                 // error occurs
                                 // client_name_.message_atop.respond_ = ResponseType::ErrorOccurs;
                                 respond_->respond_ = ResponseType::ErrorOccurs;
+                                PreLayerInstance.pack_Message(client_name_);
                                 LOG(Error) << "Error receive info packet" << std::endl;
+                                return;
                                 // stop the connection 
                                 // client_name_->state = SessionState::Error;
                                 // respond_.type_ = PacketType::InfoResponse;
@@ -49,6 +59,7 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                         client_name_->state = SessionState::WaitForPasswd;
                                         client_name_->host_username_ = message_->user_name_;
                                         LOG(Info) << "Check User Exists" << std::endl;
+                                        PreLayerInstance.pack_Message(client_name_);
                                        break;
                                }
                                case false: {
@@ -57,6 +68,7 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                         respond_->respond_ = ResponseType::UserNotExist;
                                         client_name_->state = SessionState::Error;
                                         LOG(Error) << "User not Exists" << std::endl;
+                                        PreLayerInstance.pack_Message(client_name_);
                                         break;
                                }
                         }
@@ -70,29 +82,97 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                 client_name_->state = SessionState::Error;
                                 respond_->type_ = PacketType::PasswordResponse;
                                 respond_->respond_ = ResponseType::ErrorOccurs;
+                                PreLayerInstance.pack_Message(client_name_);
+                                return;
                         }
                         // do recv password packet
-                        switch(CheckPasswd(message_->user_name_, message_->password_)) {
+                        switch(CheckPasswd(client_name_->host_username_, message_->password_)) {
                                 case true: {
                                         // password correct
                                         if(message_->password_ == InitPassword) {
                                                 // need to reset password
+                                                LOG(Info) << "Need to reset password" << endl;
                                                 client_name_->state = SessionState::WaitForNewPasswd;
                                                 respond_->type_ = PacketType::PasswordResponse;
                                                 respond_->respond_ = ResponseType::ChangePassword;
+                                                PreLayerInstance.pack_Message(client_name_);
+                                                break;
                                         }
                                         else {
                                                 // do not need to reset
+                                                LOG(Info) << "Need to reset password" << endl;
                                                 client_name_->state = SessionState::ServerWaiting;
                                                 respond_->type_ = PacketType::Configuration;
                                                 respond_->history_ = DatabaseConnection::get_instance()->retrive_message(client_name_->host_username_);
+                                                PreLayerInstance.pack_Message(client_name_);
+                                                break;
                                         }
                                 }
                                 case false: {
                                         // password error
-
+                                        LOG(Info) << "Recv Wrong Password" << endl;
+                                        client_name_->state = SessionState::Error;
+                                        respond_->type_ = PacketType::PasswordResponse;
+                                        respond_->respond_ = ResponseType::WrongPassword;
+                                        PreLayerInstance.pack_Message(client_name_);
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                }
+                case SessionState::WaitForNewPasswd :{
+                        if(message_->type_ != PacketType::Password) {
+                                // error occurs
+                                LOG(Error) << "Error receive password packet" << std::endl;
+                                // stop the connection
+                                client_name_->state = SessionState::Error;
+                                respond_->type_ = PacketType::PasswordResponse;
+                                respond_->respond_ = ResponseType::ErrorOccurs;
+                                PreLayerInstance.pack_Message(client_name_);
+                        }
+                        else {
+                                LOG(Info) << "reset password succeed" << endl;
+                                ResetPasswd(client_name_->host_username_, message_->password_);
+                                client_name_->state = SessionState::ServerWaiting;
+                                respond_->type_ = PacketType::Configuration;
+                                respond_->history_ = DatabaseConnection::get_instance()->retrive_message(client_name_->host_username_);
+                                PreLayerInstance.pack_Message(client_name_);
+                                break;
+                        }
+                        break;
+                }
+                case SessionState::ServerWaiting: {
+                        switch(message_->type_) {
+                                case PacketType::TextUsername: {
+                                        LOG(Info) << "Wait for text" << endl;
+                                        client_name_->state = SessionState::WaitForText;
+                                        break;
+                                }
+                                case PacketType::FileUsername: {
+                                        // still in progress
                                 }
                         }
+                        break;
+                }
+                case SessionState::WaitForText: {
+                        if(message_->type_ != PacketType::Text) {
+                                // error occurs
+                                LOG(Error) << "Error receive password packet" << std::endl;
+                                // stop the connection
+                                client_name_->state = SessionState::Error;
+                                respond_->type_ = PacketType::PasswordResponse;
+                                respond_->respond_ = ResponseType::ErrorOccurs;
+                                PreLayerInstance.pack_Message(client_name_);
+                        }
+                        else {
+                                LOG(Info) << "recv text information" << endl;
+                                client_name_->state = SessionState::ServerWaiting;
+                                respond_->type_ = PacketType::Text;
+                                PreLayerInstance.pack_Message(client_name_);
+                                break;
+                        }
+                        break;
                 }
         }
 
