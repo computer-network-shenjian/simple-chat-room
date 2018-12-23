@@ -1,6 +1,5 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
-
 #include <vector>
 #include <arpa/inet.h>
 #include <stdint.h>
@@ -180,6 +179,10 @@ struct file{
 class Client {
 public:
 
+    Client(int socket_fd, size_t buffer_size) : 
+        socket_fd(socket_fd),
+        recv_buffer(buffer_size) 
+    {}
     int client_id;
 
     CircularQueue recv_buffer;
@@ -194,10 +197,6 @@ public:
     // should be always greater than kHeaderSize (reset to this)
     // updated when packet is received and on state change
 
-    Client(int socket_fd, size_t buffer_size) : 
-        socket_fd(socket_fd),
-        recv_buffer(buffer_size) 
-    {}
 
     // ~Client(); // Should call the destructor of the underlying CircularQueue
 

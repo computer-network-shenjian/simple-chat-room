@@ -1,4 +1,5 @@
 #include "../include/transfer.hpp"
+// #include "../include/presentation.hpp"
 
 using namespace std;
 
@@ -163,7 +164,7 @@ int TransferLayer::accept_new_client(int listener) {
     return newfd;
 }
 
-int TransferLayer::get_listener(const ServerConf &conf) {
+int TransferLayer::get_listener(const short port) {
     // AF_INET: IPv4 protocol
     // SOCK_STREAM: TCP protocol
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -185,7 +186,7 @@ int TransferLayer::get_listener(const ServerConf &conf) {
     server_addr.sin_family = AF_INET; 
     // INADDR_ANY means 0.0.0.0(localhost), or all IP of local machine.
     server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons(conf.port); 
+    server_addr.sin_port = htons(port); 
     int server_addrlen = sizeof(server_addr);
     if (bind(server_fd, (struct sockaddr *) &server_addr, server_addrlen) < 0) {
         LOG(Error) << "Server bind error" << endl;
@@ -196,11 +197,11 @@ int TransferLayer::get_listener(const ServerConf &conf) {
         LOG(Error) << "Server listen error" << endl;
         graceful_return("listen", -1); 
     }
-    LOG(Info) << "Server socket init ok with port: " << conf.port << endl;
+    LOG(Info) << "Server socket init ok with port: " << port << endl;
     return server_fd;
 }
 
-Client* TransferLayer::find_by_username(const std::string &username) {
+Client* TransferLayer::find_by_username(const string &username) {
     return &(*find_if(session_set.begin(), session_set.end(), 
-        [username](const Client &client){ client.host_username_ == username; }));
+        [username](const Client &client){ return client.host_username_ == username; }));
 }

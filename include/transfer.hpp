@@ -1,13 +1,16 @@
+#ifndef TRANSFER_H
+#define TRANSFER_H
 #include "types.hpp"
 #include "conf.hpp"
-#include "presentation.hpp"
+#include "../include/presentation.hpp"
+
 
 
 class TransferLayer {
 
 public:
-    TransferLayer() = default;
-    ~TransferLayer();
+    // TransferLayer() = default;
+    // ~TransferLayer();
 
     // main loop. May never return.
     void select_loop(int listener);
@@ -30,6 +33,9 @@ public:
     //find client by user name
     Client* find_by_username(const std::string &username);
 
+    // If false, return -1, else return socket code.
+    int get_listener(const short port);
+
 private:
 
     std::list<Client> session_set;
@@ -41,8 +47,7 @@ private:
 
     int reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds);
 
-    // If false, return -1, else return socket code.
-    int get_listener(const ServerConf &conf);
 
 };
 
+#endif

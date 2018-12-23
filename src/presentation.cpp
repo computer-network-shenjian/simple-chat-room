@@ -1,10 +1,11 @@
 #ifndef PRESENT_H
 #define PRESENT_H
 #include "../include/presentation.hpp"
-#include "../include/application.hpp"
-#include "../include/transfer.hpp"
+// #include "../include/application.hpp"
+// #include "../include/transfer.hpp"
 
 extern ApplicationLayer AppLayerInstance;
+extern TransferLayer TransLayerInstance;
 
 using namespace std;
 
@@ -113,7 +114,6 @@ vector<uint8_t> PresentationLayer::pack_Text(Client * client){
     //push back: text
     const char* c;
     c = message.media_text_.c_str();
-    cout << c << endl;
     while((*c) != '\0'){
         temp.push_back((uint8_t)(*c) );
         c++;
@@ -270,13 +270,9 @@ StatusCode PresentationLayer::pack_Message(Client *client){
             recv_client = TransLayerInstance.find_by_username(client_name);
             
             temp_str = pack_TextUserName(client);
-            cout << (unsigned)temp_str[0] << endl;
-            cout << (char)temp_str[3] << endl << (char)temp_str[8] << endl;
             recv_client->send_buffer.push(temp_str);
 
             temp_str = pack_Text(client);
-            cout << (unsigned)temp_str[0] << endl;
-            cout << (char)temp_str[3] << endl << (char)temp_str[8] << endl;
             recv_client->send_buffer.push(temp_str);
 
             return StatusCode::OK;
