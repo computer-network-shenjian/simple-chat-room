@@ -7,5 +7,6 @@
 
 extern ApplicationLayer AppLayerInstance;
 extern PresentationLayer PreLayerInstance;
+extern TransferLayer TransLayerInstance;
 
 #endif

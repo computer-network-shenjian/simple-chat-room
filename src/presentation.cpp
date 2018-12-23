@@ -2,6 +2,7 @@
 #define PRESENT_H
 #include "../include/presentation.hpp"
 #include "../include/application.hpp"
+#include "../include/transfer.hpp"
 
 extern ApplicationLayer AppLayerInstance;
 
@@ -263,12 +264,11 @@ StatusCode PresentationLayer::pack_Message(Client *client){
         if(message.type_ == PacketType::Text){
             //use message_ptoa to find the receiver client
             Message_To_App message_ptoa = client->message_ptoa;
-         
-            /*
-                use message_ptoa.user_name_ to 
-                find the recv_client
-            */
 
+            //use message_ptoa.user_name_ to find the recv_client          
+            string client_name = message_ptoa.user_name_;
+            recv_client = TransLayerInstance.find_by_username(client_name);
+            
             temp_str = pack_TextUserName(client);
             cout << (unsigned)temp_str[0] << endl;
             cout << (char)temp_str[3] << endl << (char)temp_str[8] << endl;

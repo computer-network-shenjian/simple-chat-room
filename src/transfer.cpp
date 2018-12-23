@@ -200,3 +200,7 @@ int TransferLayer::get_listener(const ServerConf &conf) {
     return server_fd;
 }
 
+Client* TransferLayer::find_by_username(const std::string &username) {
+    return &(*find_if(session_set.begin(), session_set.end(), 
+        [username](const Client &client){ client.host_username_ == username; }));
+}

@@ -27,6 +27,9 @@ public:
 
     StatusCode try_send(Client &client);
 
+    //find client by user name
+    Client* find_by_username(const std::string &username);
+
 private:
 
     std::list<Client> session_set;
