@@ -170,3 +170,11 @@ int DatabaseConnection::retrive_history_count(string account_name)
 	mysql_free_result(result);
 	return history_count;
 }
+
+bool DatabaseConnection::reset_password(string account_name, string password)
+{
+	string command = "update account set password = '" + password + "' where username = '" + account_name + "'";
+	MysqlExecCommand(command);
+
+	return true;
+}

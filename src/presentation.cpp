@@ -112,6 +112,7 @@ vector<uint8_t> PresentationLayer::pack_Text(Client * client){
     //push back: text
     const char* c;
     c = message.media_text_.c_str();
+    cout << c << endl;
     while((*c) != '\0'){
         temp.push_back((uint8_t)(*c) );
         c++;
@@ -157,6 +158,8 @@ vector<uint8_t> PresentationLayer::pack_HistoryUserName(Message_To_Pre * message
             temp.push_back((uint8_t)(*c) );
             c++;
         }
+
+        message->history_.erase(message->history_.begin());     
     }
     //others to me
     else{    
@@ -166,6 +169,9 @@ vector<uint8_t> PresentationLayer::pack_HistoryUserName(Message_To_Pre * message
         temp.push_back((uint8_t)(length >> 8) );
         temp.push_back((uint8_t)(length) );
 
+        //push_back: direct
+        temp.push_back(direct);
+
         //push_back: user_name
         const char* c;
         c = str.c_str();
@@ -174,10 +180,8 @@ vector<uint8_t> PresentationLayer::pack_HistoryUserName(Message_To_Pre * message
             c++;
         }
 
-        //push_back: direct
-        temp.push_back(direct);
-
         //erase host name
+        message->history_.erase(message->history_.begin());     
         message->history_.erase(message->history_.begin());     
     }
 
@@ -266,9 +270,13 @@ StatusCode PresentationLayer::pack_Message(Client *client){
             */
 
             temp_str = pack_TextUserName(client);
+            cout << (unsigned)temp_str[0] << endl;
+            cout << (char)temp_str[3] << endl << (char)temp_str[8] << endl;
             recv_client->send_buffer.push(temp_str);
 
             temp_str = pack_Text(client);
+            cout << (unsigned)temp_str[0] << endl;
+            cout << (char)temp_str[3] << endl << (char)temp_str[8] << endl;
             recv_client->send_buffer.push(temp_str);
 
             return StatusCode::OK;

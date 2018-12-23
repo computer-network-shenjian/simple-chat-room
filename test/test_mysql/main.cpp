@@ -21,10 +21,10 @@ int main()
 	k = DatabaseConnection::get_instance()->retrive_history_count("Cyanic");
         cout << k << endl;
         test = DatabaseConnection::get_instance()->retrive_message("Cyanic");
-        // int i;
-        // for(i = 0; i < 12; i++) {
-        //        cout << test[i] <<endl;
-       // }
+        int i;
+        for(i = 0; i < 12; i++) {
+               cout << test[i] <<endl;
+      	 }
 
         return 0;
 }
