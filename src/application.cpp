@@ -133,6 +133,9 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                         else {
                                 LOG(Info) << "reset password succeed" << endl;
                                 ResetPasswd(client_name_->host_username_, message_->password_);
+                                respond_->type_ = PacketType::PasswordResponse;
+                                respond_->respond_ = ResponseType::OK;
+                                PreLayerInstance.pack_Message(client_name_);
                                 client_name_->state = SessionState::ServerWaiting;
                                 respond_->type_ = PacketType::Configuration;
                                 respond_->history_ = DatabaseConnection::get_instance()->retrive_message(client_name_->host_username_);
@@ -146,10 +149,17 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                 case PacketType::TextUsername: {
                                         LOG(Info) << "Wait for text" << endl;
                                         client_name_->state = SessionState::WaitForText;
+                                        // LOG(Debug) << message_->user_name_ << endl;
+                                        // dest_name = message_->user_name_;
                                         break;
                                 }
                                 case PacketType::FileUsername: {
                                         // still in progress
+                                }
+                                case PacketType::GroupTextUserlist: {
+                                        LOG(Info) << "Wait for text" << endl;
+                                        client_name_->state = SessionState::WaitForText;
+                                        break;
                                 }
                         }
                         break;
@@ -168,6 +178,10 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                 LOG(Info) << "recv text information" << endl;
                                 client_name_->state = SessionState::ServerWaiting;
                                 respond_->type_ = PacketType::Text;
+                                // cout << message_->user_name_ << endl;
+                                // cout << "debug" << endl;
+                                // LOG(Debug) << message_->user_name_ << endl;
+                                DatabaseConnection::get_instance()->push_message(client_name_->host_username_, message_->user_name_, message_->media_text_);
                                 PreLayerInstance.pack_Message(client_name_);
                                 break;
                         }

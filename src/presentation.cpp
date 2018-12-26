@@ -9,6 +9,20 @@ extern TransferLayer TransLayerInstance;
 
 using namespace std;
 
+bool PresentationLayer::check_passwordFormat(unsigned char *password){
+    unsigned char * ptr = password;
+    if(!strcmp((char *)password, "123456")) return true;
+    int count = 0;
+    while((*ptr) != '\0'){
+        count ++;
+        ptr ++;
+    }
+
+    if(count < 8 || count > 28)
+        return false;
+    return true;
+}
+
 vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){
     static vector<uint8_t> temp;
     uint8_t* descriptor;
@@ -265,8 +279,8 @@ StatusCode PresentationLayer::pack_Message(Client *client){
             //use message_ptoa to find the receiver client
             Message_To_App message_ptoa = client->message_ptoa;
             string client_name;
-            vector<string>::iter;
 
+            vector<string>::iterator iter;
             //group chat
             if(message_ptoa.user_name_list_.size() != 0){
                 while(message_ptoa.user_name_list_.size()){
@@ -320,7 +334,8 @@ StatusCode PresentationLayer::pack_Message(Client *client){
 }
 
 StatusCode PresentationLayer::unpack_DataPacket(Client *client){
-  while( client->recv_buffer.has_complete_packet()){
+    Message_To_Pre message_atop;
+    while( client->recv_buffer.has_complete_packet()){
         //client->recv_buffer.has_complete_packet()
         DataPacket packet;
         Message_To_App message;
@@ -339,49 +354,69 @@ StatusCode PresentationLayer::unpack_DataPacket(Client *client){
             temp_data = unpack_String(packet);
             switch(packet.type){
                 case PacketType::Info:
-                    message.user_name_ = (char *)temp_data;
+                    client->message_ptoa.user_name_ = (char *)temp_data;
                     break;
                 case PacketType::Password:
-                    message.password_ = (char *)temp_data;
+                    client->message_ptoa.password_ = (char *)temp_data;
                     break;
                 case PacketType::HistoryUserName:
-                    message.user_name_ = (char *)temp_data;
+                    client->message_ptoa.user_name_ = (char *)temp_data;
                     break;
                 case PacketType::History:
-                    message.media_text_ = (char *)temp_data;
+                    client->message_ptoa.media_text_ = (char *)temp_data;
                     break;
                 case PacketType::TextUsername:
-                    message.user_name_ = (char *)temp_data;
+                    client->message_ptoa.user_name_ = (char *)temp_data;
                     break;
                 case PacketType::Text:
-                    message.media_text_ = (char *)temp_data;
+                    client->message_ptoa.media_text_ = (char *)temp_data;
                     break;
                 case PacketType::FileUsername:
-                    message.user_name_ = (char *)temp_data;
+                    client->message_ptoa.user_name_ = (char *)temp_data;
                     break;
                 case PacketType::FileName:
-                    message.file_name_ = (char *)temp_data;
+                    client->message_ptoa.file_name_ = (char *)temp_data;
                     break;
                 case PacketType::FileInProgress:
-                    message.media_file_ = (char *)temp_data;
+                    client->message_ptoa.media_file_ = (char *)temp_data;
                     break;
                 case PacketType::FileEnd:                
-                    message.media_file_ = (char *)temp_data;
+                    client->message_ptoa.media_file_ = (char *)temp_data;
                     break;
                 default:
                     break;
             }
         }//end of if
      
-        if(packet.type == PacketType::Configuration)
+        if(packet.type == PacketType::Password){
+            temp_data = unpack_String(packet);
+            if(check_passwordFormat(temp_data) == false){
+                message_atop.type_ = PacketType::PasswordResponse;
+                message_atop.respond_ = ResponseType::WrongPassword;
+                client->send_buffer.push(pack_Response(message_atop));
+                return StatusCode::OK;
+            }
+            //valid password format
+            client->message_ptoa.password_ = (char *)temp_data;
+        }
+
+        if(packet.type == PacketType::Configuration){
                 message = unpack_Configuration(packet);
+                client->message_ptoa.config_ = message.config_;
+        }
 
-        if(packet.type == PacketType::GroupTextUserlist)
+        if(packet.type == PacketType::GroupTextUserlist){
                 message = unpack_GroupTextUserList(packet);
+                client->message_ptoa.user_name_list_ = message.user_name_list_;
+        }
 
-        message.type_ = packet.type;
-        client->message_ptoa = message;
-
+        client->message_ptoa.type_ = packet.type;
+        // cout << (packet.type == PacketType::Password) << endl;
+        // cout << (client->message_ptoa.type_ == PacketType::Password) << endl;
+    
+        // cout << client->message_ptoa.user_name_ << endl;
+        // cout << &client << endl;
+        // cout << "debug2" << endl;
         AppLayerInstance.MessageToApp(client);
     }
     return StatusCode::OK;

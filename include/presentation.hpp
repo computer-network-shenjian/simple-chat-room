@@ -32,6 +32,17 @@ private:
 public:
     PresentationLayer() = default;
 
+    bool check_passwordFormat(unsigned char *password);
+    //function: check password format
+    //status: recv
+    //precondition: recv new password from client
+    //return:
+    //      true: valid password format
+    //      false: invalid password format
+    //fromat:
+    //      maxLength  = 28
+    //      minLength  = 8
+    
     StatusCode pack_Message(Client *client);
     // function: pack Message from appLayer
     // status: send
