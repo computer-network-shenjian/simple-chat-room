@@ -87,20 +87,21 @@ void TransferLayer::select_loop(int listener) {
                             // LOG(Debug) << "Info buffer " << el.recv_buffer.size() << endl;
                             // LOG(Debug) << "SHould be username " << el.recv_buffer.data + 3 << endl;
                             PreLayerInstance.unpack_DataPacket(&el);
-                        } else {
-                            // remove client here
-                        }
-                    }
-                    
-                    if (FD_ISSET(el.socket_fd, &write_fds)) {
-                        if (try_send(el) == StatusCode::OK) {
-                            PreLayerInstance.unpack_DataPacket(&el);
                             if (el.state == SessionState::Error) {
-                                // remove client
+                                // remove client here
+                                remove_client(el);
+                                break;
                             }
                         } else {
                             // remove client here
+                            remove_client(el);
+                            break;
                         }
+                    }
+                    
+                    if (FD_ISSET(el.socket_fd, &write_fds) && try_send(el) != StatusCode::OK) {
+                        // remove client
+                        remove_client(el);
                     }
                 }
 
@@ -217,4 +218,9 @@ int TransferLayer::get_listener(const short port) {
 Client* TransferLayer::find_by_username(const string &username) {
     return &(*find_if(session_set.begin(), session_set.end(), 
         [username](const Client &client){ return client.host_username_ == username; }));
+}
+
+StatusCode TransferLayer::remove_client(Client &client) {
+    session_set.remove_if([client](const Client &el){ return el.client_id == client.client_id; });
+    LOG(Info) << "Client " << client.client_id << " closed connection\n";
 }

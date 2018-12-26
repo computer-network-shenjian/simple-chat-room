@@ -176,13 +176,13 @@ struct file{
 // #define CLIENT_H
 
 
-class Client {
-public:
+struct Client {
 
     Client(int socket_fd, size_t buffer_size) : 
         socket_fd(socket_fd),
         recv_buffer(buffer_size) 
     {}
+
     int client_id;
 
     CircularQueue recv_buffer;
@@ -200,7 +200,6 @@ public:
 
     // ~Client(); // Should call the destructor of the underlying CircularQueue
 
-private:
 
 };
 
