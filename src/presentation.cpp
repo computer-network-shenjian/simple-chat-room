@@ -279,7 +279,7 @@ StatusCode PresentationLayer::pack_Message(Client *client){
             //use message_ptoa to find the receiver client
             Message_To_App message_ptoa = client->message_ptoa;
             string client_name;
-
+            
             vector<string>::iterator iter;
             //group chat
             if(message_ptoa.user_name_list_.size() != 0){
