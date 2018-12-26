@@ -135,13 +135,9 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                         else {
                                 LOG(Info) << "reset password succeed" << endl;
                                 ResetPasswd(client_name_->host_username_, message_->password_);
-<<<<<<< HEAD
-                                //client_name_->state = SessionState::ServerWaiting;
-=======
                                 respond_->type_ = PacketType::PasswordResponse;
                                 respond_->respond_ = ResponseType::OK;
                                 PreLayerInstance.pack_Message(client_name_);
->>>>>>> dccf8a5a543b8edb1a9d68229846f0a02fec6304
                                 client_name_->state = SessionState::ServerWaiting;
                                 respond_->type_ = PacketType::Configuration;
                                 respond_->history_ = DatabaseConnection::get_instance()->retrive_message(client_name_->host_username_);
