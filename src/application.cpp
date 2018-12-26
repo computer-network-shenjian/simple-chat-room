@@ -102,6 +102,9 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                         else {
                                                 // do not need to reset
                                                 LOG(Info) << "Need to reset password" << endl;
+                                                respond_->type_ = PacketType::PasswordResponse;
+                                                respond_->respond_ = ResponseType::OK;
+                                                PreLayerInstance.pack_Message(client_name_);
                                                 client_name_->state = SessionState::ServerWaiting;
                                                 respond_->type_ = PacketType::Configuration;
                                                 respond_->history_ = DatabaseConnection::get_instance()->retrive_message(client_name_->host_username_);
