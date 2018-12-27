@@ -217,8 +217,9 @@ int TransferLayer::get_listener(const short port) {
 }
 
 Client* TransferLayer::find_by_username(const string &username) {
-    return &(*find_if(session_set.begin(), session_set.end(), 
-        [username](const Client &client){ return client.host_username_ == username; }));
+    auto it = find_if(session_set.begin(), session_set.end(), 
+        [username](const Client &client){ return client.host_username_ == username; });
+    return it == session_set.end() ? nullptr : &(*it);
 }
 
 StatusCode TransferLayer::remove_client(Client &client) {
