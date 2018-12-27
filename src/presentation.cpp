@@ -38,6 +38,7 @@ vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){
             //length = 1
             //length = htons((uint16_t)1 );    
             length = (uint16_t)1;
+
             temp.push_back((uint8_t)(length >> 8) );
             temp.push_back((uint8_t)(length) );
             temp.push_back(*((uint8_t*)&message.respond_));
@@ -47,6 +48,7 @@ vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){
             //length = 1
             //length = htons((uint16_t)1 );    
             length = (uint16_t)1;
+
             temp.push_back((uint8_t)(length >> 8) );
             temp.push_back((uint8_t)(length) );
             temp.push_back(*((uint8_t*)&message.respond_));
@@ -74,7 +76,7 @@ vector<uint8_t> PresentationLayer::pack_Config(Message_To_Pre message){
     temp.push_back(*((uint8_t*)&message.type_));
 
     //conf length = 8
-    length = htons((uint16_t)8 );    
+    length = (uint16_t)8;    
     temp.push_back((uint8_t)(length >> 8) );
     temp.push_back((uint8_t)(length) );
 
