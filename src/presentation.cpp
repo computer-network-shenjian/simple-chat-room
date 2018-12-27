@@ -279,9 +279,11 @@ StatusCode PresentationLayer::pack_Message(Client *client){
             while(message.history_.size() != 0){
                 //history user name
                 temp_str = pack_HistoryUserName(&message, client->host_username_);
+                cout << (unsigned int)temp_str[0] << "debug1"  << temp_str.size() << endl;
                 client->send_buffer.push(temp_str);
                 //history
                 temp_str = pack_History(&message);
+                cout << (unsigned int)temp_str[0] << "debug2" << temp_str.size() << endl;
                 client->send_buffer.push(temp_str);
             }
         }//end of Configuration
