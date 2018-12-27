@@ -72,7 +72,7 @@ vector<uint8_t> PresentationLayer::pack_Config(Message_To_Pre message){
     temp.push_back(*((uint8_t*)&message.type_));
 
     //conf length = 2
-    length = htons((uint16_t)7 );    
+    length = htons((uint16_t)2 );    
     temp.push_back((uint8_t)(length >> 8) );
     temp.push_back((uint8_t)(length) );
 
