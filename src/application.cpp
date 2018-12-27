@@ -91,6 +91,9 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                         if(message_->password_ == InitPassword) {
                                                 // need to reset password
                                                 LOG(Info) << "Need to reset password" << endl;
+						respond_->type_ = PacketType::PasswordResponse;
+						respond_->respond_ = ResponseType::OK;
+						PreLayerInstance.pack_Message(client_name_);
                                                 client_name_->state = SessionState::WaitForNewPasswd;
                                                 respond_->type_ = PacketType::PasswordResponse;
                                                 respond_->respond_ = ResponseType::ChangePassword;
@@ -159,7 +162,6 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                 case PacketType::FileUsername: {
                                         // still in progress
                                         LOG(Info) << "Wait for File" << endl;
-                                        client_name_->state = SessionState::
                                 }
                                 case PacketType::GroupTextUserlist: {
                                         LOG(Info) << "Wait for text" << endl;
