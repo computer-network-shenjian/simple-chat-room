@@ -171,7 +171,7 @@ vector<uint8_t> PresentationLayer::pack_HistoryUserName(Message_To_Pre * message
         
         //push_back: user_name length
         str = *message->history_.begin(); 
-        length = (uint16_t)(str.length());
+        length = (uint16_t)(str.length() + 1);
         temp.push_back((uint8_t)(length >> 8) );
         temp.push_back((uint8_t)(length) );
 
@@ -192,7 +192,7 @@ vector<uint8_t> PresentationLayer::pack_HistoryUserName(Message_To_Pre * message
     else{    
         //push_back: user_name length
         str = *message->history_.begin(); 
-        length = (uint16_t)(str.length());
+        length = (uint16_t)(str.length() + 1);
         temp.push_back((uint8_t)(length >> 8) );
         temp.push_back((uint8_t)(length) );
 
@@ -284,6 +284,7 @@ StatusCode PresentationLayer::pack_Message(Client *client){
                 temp_str = pack_History(&message);
                 client->send_buffer.push(temp_str);
             }
+            cout << "client send_buffer length " << client->send_buffer.size() << endl;
         }//end of Configuration
 
         //send Text to some other client
