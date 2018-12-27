@@ -4,6 +4,7 @@
 // #include "client.hpp"
 #include "types.hpp"
 #include "../include/presentation.hpp"
+#include "../include/transfer.hpp"
 #include "Log.h"
 // #include <iostream>
 
