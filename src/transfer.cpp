@@ -224,4 +224,6 @@ Client* TransferLayer::find_by_username(const string &username) {
 StatusCode TransferLayer::remove_client(Client &client) {
     session_set.remove_if([client](const Client &el){ return el.client_id == client.client_id; });
     LOG(Info) << "Client " << client.client_id << " closed connection\n";
+    
+    return StatusCode::OK;
 }
