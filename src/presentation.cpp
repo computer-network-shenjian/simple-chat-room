@@ -325,6 +325,10 @@ StatusCode PresentationLayer::pack_Message(Client *client){
                 client_name = message_ptoa.user_name_;
                 recv_client = TransLayerInstance.find_by_username(client_name);
                 
+                //recv client off line
+                if(recv_client == NULL)
+                    return;
+                
                 //pack text user name
                 temp_str = pack_TextUserName(client);
                 recv_client->send_buffer.push(temp_str);
