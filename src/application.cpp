@@ -104,7 +104,7 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                         }
                                         else {
                                                 // do not need to reset
-                                                LOG(Info) << "Need to reset password" << endl;
+                                                LOG(Info) << "No need to reset password" << endl;
                                                 respond_->type_ = PacketType::PasswordResponse;
                                                 respond_->respond_ = ResponseType::OK;
                                                 PreLayerInstance.pack_Message(client_name_);
