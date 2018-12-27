@@ -41,7 +41,7 @@ const int MaxFileLen = 1021;    // 1 KB
 const size_t kSessionSetSize = 5; // max number of active sessions
 const unsigned int kHeaderSize = 3; // network packet header size
 const size_t kMaxPacketLength = 1024; // TODO: double check on this number
-const size_t kRecvBufferSize = kMaxPacketLength * 3;
+const size_t kRecvBufferSize = kMaxPacketLength;
 
 // used as the first byte of data packets
 enum class PacketType : uint8_t {
@@ -120,6 +120,7 @@ class CircularQueue {
 public:
     CircularQueue(size_t init_size);
     ~CircularQueue();
+    uint8_t *data; // debug
 
     bool enqueue(const uint8_t *buf, const size_t size);
     bool dequeue(uint8_t *buf, const size_t size);
@@ -135,7 +136,6 @@ public:
 
 private:
     size_t _size;
-    uint8_t *data;
     size_t _num_free_bytes;
     size_t front, rear;
 };

@@ -36,7 +36,9 @@ vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){
     switch(message.type_){
         case PacketType::InfoResponse:             
             //length = 1
-            length = (uint16_t)1;    
+            //length = htons((uint16_t)1 );    
+            length = (uint16_t)1;
+
             temp.push_back((uint8_t)(length >> 8) );
             temp.push_back((uint8_t)(length) );
             temp.push_back(*((uint8_t*)&message.respond_));
@@ -44,7 +46,9 @@ vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){
 
         case PacketType::PasswordResponse:
             //length = 1
-            length = (uint16_t)1;    
+            //length = htons((uint16_t)1 );    
+            length = (uint16_t)1;
+
             temp.push_back((uint8_t)(length >> 8) );
             temp.push_back((uint8_t)(length) );
             temp.push_back(*((uint8_t*)&message.respond_));
@@ -126,7 +130,7 @@ vector<uint8_t> PresentationLayer::pack_Text(Client * client){
     Message_To_App message = client->message_ptoa;
 
     //push back: descriptor
-    temp.push_back((uint8_t)PacketType::Text); 
+    temp.push_back((uint8_t)PacketType::Text);
 
     //push back: text length
     length = (uint16_t)message.media_text_.length();

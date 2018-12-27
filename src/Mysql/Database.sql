@@ -19,9 +19,11 @@ insert into account(username) values('novatez');
 drop table if exists history;
 create table history (
 message_id bigint unsigned,
-username_main varchar(30) BINARY not null,
-username_sub varchar(30) BINARY not null,
+username_main varchar(30) BINARY not null, 
+username_sub varchar(30) BINARY not null, 
 message_info varchar(100) not null default 'error'
 );
 
-alter table history add primary key(message_id);
+alter table history add primary key(message_id); 
+alter table history add CONSTRAINT FOREIGN KEY(username_main) REFERENCES account(username);
+alter table history add CONSTRAINT FOREIGN KEY(username_sub) REFERENCES account(username);
