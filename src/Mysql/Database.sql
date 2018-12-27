@@ -6,15 +6,15 @@ drop table if exists account;
 
 create table account (
 username varchar(30) BINARY not null,
-password varchar(30) not null default '123456',
+password varchar(100) not null,
 history_count int unsigned default 100
 );
 alter table account add primary key(username);
 
-insert into account(username, history_count) values('Cyanic', 1);
-insert into account(username) values('Twofyw');
-insert into account(username) values('YYYuna');
-insert into account(username) values('novatez');
+insert into account(username, history_count, password) values('Cyanic', 1, MD5('123456'));
+insert into account(username, password) values('Twofyw', MD5('123456'));
+insert into account(username, password) values('YYYuna', MD5('123456'));
+insert into account(username, password) values('novatez', MD5('123456'));
 
 drop table if exists history;
 create table history (

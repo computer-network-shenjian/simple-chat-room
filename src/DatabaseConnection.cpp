@@ -94,7 +94,7 @@ bool DatabaseConnection::check_password(string account_name, string password)
 	MYSQL_ROW row;
 
 	// form command
-	string command = "select count(*) from account where username = '" + account_name + "' and password = '" + password + "';";
+	string command = "select count(*) from account where username = '" + account_name + "' and password = MD5('" + password + "');";
 
 	// exec command and store return value
 	result = MysqlExecCommand(command);
@@ -173,7 +173,7 @@ int DatabaseConnection::retrive_history_count(string account_name)
 
 bool DatabaseConnection::reset_password(string account_name, string password)
 {
-	string command = "update account set password = '" + password + "' where username = '" + account_name + "'";
+	string command = "update account set password = MD5('" + password + "') where username = '" + account_name + "'";
 	MysqlExecCommand(command);
 
 	return true;
