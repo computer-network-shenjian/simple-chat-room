@@ -326,6 +326,8 @@ StatusCode PresentationLayer::pack_Message(Client *client){
                 temp_str = pack_TextUserName(client);
                 recv_client->send_buffer.push(temp_str);
 
+		cout << "debug" << recv_client->host_username_;
+		cout << "debug2" << (char)temp_str[4];
                 //pack text
                 temp_str = pack_Text(client);
                 recv_client->send_buffer.push(temp_str);
