@@ -325,8 +325,8 @@ StatusCode PresentationLayer::pack_Message(Client *client){
                 
                 //recv client off line
                 if(recv_client == NULL)
-                    return;
-                
+                    return StatusCode::OK;
+
                 //pack text user name
                 temp_str = pack_TextUserName(client);
                 recv_client->send_buffer.push(temp_str);
