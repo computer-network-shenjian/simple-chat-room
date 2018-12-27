@@ -58,7 +58,6 @@ vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){
             //length = 0
             temp.push_back((uint8_t)0); 
             temp.push_back((uint8_t)0);
-            temp.push_back((uint8_t)0);
     }
 
     return temp;
@@ -251,7 +250,7 @@ vector<uint8_t> PresentationLayer::pack_History(Message_To_Pre * message){
 StatusCode PresentationLayer::pack_Message(Client *client){
     Client *recv_client;
     DataPacket packet;
-    Message_To_Pre message;
+    Message_To_Pre message, message_temp;
     vector<uint8_t> temp_str;
     unsigned char *temp_data;
 
@@ -287,6 +286,10 @@ StatusCode PresentationLayer::pack_Message(Client *client){
                 client->send_buffer.push(temp_str);
             }
             cout << "client send_buffer length " << client->send_buffer.size() << endl;
+
+            //Sync End
+            message_temp.type_ = PacketType::SyncEnd;
+            client->send_buffer.push(pack_Response(message_temp));
         }//end of Configuration
 
         //send Text to some other client
