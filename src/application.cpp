@@ -93,6 +93,9 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                         if(message_->password_ == InitPassword) {
                                                 // need to reset password
                                                 LOG(Info) << "Need to reset password" << endl;
+						respond_->type_ = PacketType::PasswordResponse;
+						respond_->respond_ = ResponseType::OK;
+						PreLayerInstance.pack_Message(client_name_);
                                                 client_name_->state = SessionState::WaitForNewPasswd;
                                                 respond_->type_ = PacketType::PasswordResponse;
                                                 respond_->respond_ = ResponseType::ChangePassword;
@@ -108,6 +111,7 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                                 client_name_->state = SessionState::ServerWaiting;
                                                 respond_->type_ = PacketType::Configuration;
                                                 respond_->history_ = DatabaseConnection::get_instance()->retrive_message(client_name_->host_username_);
+                                                respond_->config_ = DatabaseConnection::get_instance()->retrive_history_count(client_name_->host_username_);
                                                 PreLayerInstance.pack_Message(client_name_);
                                                 break;
                                         }
@@ -144,6 +148,7 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                 client_name_->state = SessionState::ServerWaiting;
                                 respond_->type_ = PacketType::Configuration;
                                 respond_->history_ = DatabaseConnection::get_instance()->retrive_message(client_name_->host_username_);
+                                respond_->config_ = DatabaseConnection::get_instance()->retrive_history_count(client_name_->host_username_);
                                 PreLayerInstance.pack_Message(client_name_);
                                 break;
                         }
@@ -161,7 +166,6 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                 case PacketType::FileUsername: {
                                         // still in progress
                                         LOG(Info) << "Wait for File" << endl;
-                                        client_name_->state = SessionState::
                                 }
                                 case PacketType::GroupTextUserlist: {
                                         LOG(Info) << "Wait for text" << endl;

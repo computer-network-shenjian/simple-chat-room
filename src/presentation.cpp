@@ -73,9 +73,8 @@ vector<uint8_t> PresentationLayer::pack_Config(Message_To_Pre message){
     //descriptor
     temp.push_back(*((uint8_t*)&message.type_));
 
-    //conf length = 2
-    //length = htons((uint16_t)2 );    
-    length = (uint16_t)2;
+    //conf length = 8
+    length = htons((uint16_t)8 );    
     temp.push_back((uint8_t)(length >> 8) );
     temp.push_back((uint8_t)(length) );
 
@@ -84,6 +83,14 @@ vector<uint8_t> PresentationLayer::pack_Config(Message_To_Pre message){
     temp.push_back((uint8_t)(conf >> 8) );
     temp.push_back((uint8_t)(conf) );
 
+    //RGB
+    temp.push_back((uint8_t)255);
+    temp.push_back((uint8_t)255);
+    temp.push_back((uint8_t)255);
+
+    temp.push_back((uint8_t)255);
+    temp.push_back((uint8_t)227);
+    temp.push_back((uint8_t)132);
     return temp;
 }
 
