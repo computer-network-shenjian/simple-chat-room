@@ -51,9 +51,9 @@
 
  > **respond type:**
  >
- > |         0x0         |   0x1   |
- > | :-----------------: | :-----: |
- > | user does not exist | succeed |
+ >|         0x0         |   0x1   |
+ >| :-----------------: | :-----: |
+ >| user does not exist | succeed |
  >
  >
 
@@ -105,7 +105,7 @@
 
 |  0   |  1, 2  |          3, 4           |   5, 6, 7   |  8, 9, 10   |
 | :--: | :----: | :---------------------: | :---------: | :---------: |
-| 0x05 | 0x0007 | record_length (2 bytes) | color (RGB) | color (RGB) |
+| 0x05 | 0x0008 | record_length (2 bytes) | color (RGB) | color (RGB) |
 
 #### history_user_name  `0x06`
 
