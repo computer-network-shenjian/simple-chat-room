@@ -153,11 +153,13 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                         LOG(Info) << "Wait for text" << endl;
                                         client_name_->state = SessionState::WaitForText;
                                         // LOG(Debug) << message_->user_name_ << endl;
-                                        // dest_name = message_->user_name_;
+                                        // client = message_->user_name_;
                                         break;
                                 }
                                 case PacketType::FileUsername: {
                                         // still in progress
+                                        LOG(Info) << "Wait for File" << endl;
+                                        client_name_->state = SessionState::
                                 }
                                 case PacketType::GroupTextUserlist: {
                                         LOG(Info) << "Wait for text" << endl;
