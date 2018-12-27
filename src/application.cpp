@@ -1,6 +1,7 @@
 #include "../include/application.hpp"
 
 using namespace fly;
+using namespace std;
 const string InitPassword = "123456";
 
 extern PresentationLayer PreLayerInstance;
@@ -43,7 +44,8 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                                 // client_name_.message_atop.respond_ = ResponseType::ErrorOccurs;
                                 respond_->respond_ = ResponseType::ErrorOccurs;
                                 PreLayerInstance.pack_Message(client_name_);
-                                LOG(Error) << "Error receive info packet" << std::endl;
+                                LOG(Error) << "Error receive info packet: " << unsigned(uint8_t(message_->type_)) << endl 
+                                    << "Username: " << message_->user_name_ << std::endl;
                                 return;
                                 // stop the connection 
                                 // client_name_->state = SessionState::Error;

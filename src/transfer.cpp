@@ -12,6 +12,7 @@ StatusCode TransferLayer::try_recv(Client &client) {
     if (client.recv_buffer.size() < kHeaderSize) { // doesn't have header currently
         int received_bytes = 0;
         while (client.recv_buffer.size() < kHeaderSize) {
+            LOG(Debug) << "try_recv socket_fd: " << client.socket_fd << endl;
             int num_bytes = recv(client.socket_fd, tmp_buffer, client.recv_buffer.get_num_free_bytes(), 0);
             // error handling
             if (num_bytes <= 0) {
@@ -23,13 +24,15 @@ StatusCode TransferLayer::try_recv(Client &client) {
                 client.recv_buffer.enqueue(tmp_buffer, received_bytes); // TODO
             }
         }
+        return StatusCode::OK;
     } 
 
     if (!client.recv_buffer.is_full() && client.recv_buffer.current_packet_size()) {
         int num_bytes = recv(client.socket_fd, tmp_buffer, client.recv_buffer.get_num_free_bytes(), 0);
         // error handling
         if (num_bytes < 0) {
-            LOG(Error) << "RecvError 2\n";
+            LOG(Error) << client.socket_fd << endl;
+            perror("RecvError 2\n");
             return StatusCode::RecvError;
         } else {
             client.recv_buffer.enqueue(tmp_buffer, num_bytes); 
@@ -64,8 +67,11 @@ void TransferLayer::select_loop(int listener) {
     for (;;) {
         int fdmax = reset_rw_fd_sets(read_fds, write_fds);
         FD_SET(listener, &read_fds); // also listen for new connections
+        if (listener > fdmax) fdmax = listener; 
 
         int rv = select(fdmax+1, &read_fds, &write_fds, NULL, NULL);
+        // LOG(Debug) << "select: " << rv << endl;
+        // LOG(Debug) << "fdmax: " << fdmax << endl;
         switch (rv) {
             case -1:
                 LOG(Error) << "Select in main loop\n";
@@ -77,27 +83,31 @@ void TransferLayer::select_loop(int listener) {
                 // firstly, iterate through map and process clients in session
                 for (auto &el : session_set) {
                     if (FD_ISSET(el.socket_fd, &read_fds)) {
-                        if (try_recv(el) != StatusCode::OK) {
-                            PreLayerInstance.unpack_DataPacket(&el);
-                        } else {
-                            // remove client here
-                        }
-                    }
-                    
-                    if (FD_ISSET(el.socket_fd, &write_fds)) {
-                        if (try_send(el) != StatusCode::OK) {
+                        if (try_recv(el) == StatusCode::OK && el.recv_buffer.size() >= el.recv_buffer.current_packet_size()) {
+                            // LOG(Debug) << "Info buffer " << el.recv_buffer.size() << endl;
+                            // LOG(Debug) << "SHould be username " << el.recv_buffer.data + 3 << endl;
                             PreLayerInstance.unpack_DataPacket(&el);
                             if (el.state == SessionState::Error) {
-                                // remove client
+                                // remove client here
+                                remove_client(el);
+                                break;
                             }
                         } else {
                             // remove client here
+                            remove_client(el);
+                            break;
                         }
+                    }
+                    
+                    if (FD_ISSET(el.socket_fd, &write_fds) && try_send(el) != StatusCode::OK) {
+                        // remove client
+                        remove_client(el);
                     }
                 }
 
                 // and lastly, check for new connections 
                 if (FD_ISSET(listener, &read_fds)) {
+                    LOG(Debug) << "listenr readable\n";
                     accept_new_client(listener);
                 }
                 
@@ -108,17 +118,21 @@ void TransferLayer::select_loop(int listener) {
 
 int TransferLayer::reset_rw_fd_sets(fd_set &read_fds, fd_set &write_fds) {
     int maxfd = 0;
+    FD_ZERO(&read_fds);
+    FD_ZERO(&write_fds);
     for (const Client &client : session_set) {
         // set read_fds if have enough buffer size to receive at least the header
         if (client.recv_buffer.get_num_free_bytes() > kHeaderSize) {
             FD_SET(client.socket_fd, &read_fds);
             maxfd = max(maxfd, client.socket_fd);
+            LOG(Debug) << "read_fds\n";
         }
 
         // set write_fds if has data in send_buffer
         if (!client.send_buffer.empty()) {
             FD_SET(client.socket_fd, &write_fds);
             maxfd = max(maxfd, client.socket_fd);
+            LOG(Debug) << "write_fds\n";
         }
     }
     return maxfd;
@@ -184,7 +198,6 @@ int TransferLayer::get_listener(const short port) {
 
     struct sockaddr_in server_addr; 
     server_addr.sin_family = AF_INET; 
-    // INADDR_ANY means 0.0.0.0(localhost), or all IP of local machine.
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(port); 
     int server_addrlen = sizeof(server_addr);
@@ -198,10 +211,16 @@ int TransferLayer::get_listener(const short port) {
         graceful_return("listen", -1); 
     }
     LOG(Info) << "Server socket init ok with port: " << port << endl;
+    LOG(Info) << "server_fd: " << server_fd<< endl;
     return server_fd;
 }
 
 Client* TransferLayer::find_by_username(const string &username) {
     return &(*find_if(session_set.begin(), session_set.end(), 
         [username](const Client &client){ return client.host_username_ == username; }));
+}
+
+StatusCode TransferLayer::remove_client(Client &client) {
+    session_set.remove_if([client](const Client &el){ return el.client_id == client.client_id; });
+    LOG(Info) << "Client " << client.client_id << " closed connection\n";
 }

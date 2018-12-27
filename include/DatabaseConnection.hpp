@@ -5,7 +5,7 @@
 #include  <unistd.h>
 #include  <iomanip>
 #include  <iostream>
-#include  </usr/include/mysql/mysql.h>
+#include  <mysql/mysql.h>
 #include  <vector>
 #include  <string>
 using namespace std;

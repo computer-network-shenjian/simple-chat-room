@@ -12,7 +12,7 @@ CircularQueue::CircularQueue(size_t init_size) {
 }
 
 CircularQueue::~CircularQueue() {
-    delete[] data;
+    //delete[] data;
 }
 
 bool CircularQueue::enqueue(const uint8_t *buf, const size_t size) {
