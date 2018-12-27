@@ -101,6 +101,7 @@ enum class ResponseType : uint8_t {
     ChangePassword = 2,
     WrongPassword = 3,
     ErrorOccurs = 4,
+    AlreadyLoggedIn = 5,
 };
 
 // State machine definition
