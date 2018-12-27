@@ -226,3 +226,15 @@ StatusCode TransferLayer::remove_client(Client &client) {
     session_set.remove_if([client](const Client &el){ return el.client_id == client.client_id; });
     LOG(Info) << "Client " << client.client_id << " closed connection\n";
 }
+
+Client * TransferLayer::find_by_username_cnt(Client *client){
+    list<Client>::iterator it = session_set.begin();
+    for( ; it != session_set.end(); it++){
+        if(it->host_username_ == client->host_username_ && it->socket_fd != client->socket_fd)
+            return &(*it);
+    }
+    return NULL;
+}
+// //return:
+//     NULL   do nothing
+//     Client *  kick Client *

@@ -33,6 +33,8 @@ public:
     //find client by user name
     Client* find_by_username(const std::string &username);
 
+    Client* find_by_username_cnt(Client *client);
+
     // If false, return -1, else return socket code.
     int get_listener(const short port);
 
