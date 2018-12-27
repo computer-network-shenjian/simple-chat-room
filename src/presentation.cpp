@@ -58,7 +58,6 @@ vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){
             //length = 0
             temp.push_back((uint8_t)0); 
             temp.push_back((uint8_t)0);
-            temp.push_back((uint8_t)0);
     }
 
     return temp;
