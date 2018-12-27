@@ -58,6 +58,13 @@ vector<uint8_t> PresentationLayer::pack_Response(Message_To_Pre message){
             //length = 0
             temp.push_back((uint8_t)0); 
             temp.push_back((uint8_t)0);
+
+        case PacketType::Refuse:
+            //length = 1
+            length = (uint16_t)1;
+            temp.push_back((uint8_t)(length >> 8) ); 
+            temp.push_back((uint8_t)length );
+            temp.push_back(*((uint8_t*)&message.respond_));
     }
 
     return temp;
@@ -278,11 +285,9 @@ StatusCode PresentationLayer::pack_Message(Client *client){
             while(message.history_.size() != 0){
                 //history user name
                 temp_str = pack_HistoryUserName(&message, client->host_username_);
-                cout << (unsigned int)temp_str[0] << "debug1"  << temp_str.size() << endl;
                 client->send_buffer.push(temp_str);
                 //history
                 temp_str = pack_History(&message);
-                cout << (unsigned int)temp_str[0] << "debug2" << temp_str.size() << endl;
                 client->send_buffer.push(temp_str);
             }
             cout << "client send_buffer length " << client->send_buffer.size() << endl;
