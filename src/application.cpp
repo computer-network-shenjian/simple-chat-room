@@ -5,6 +5,7 @@ using namespace std;
 const string InitPassword = "123456";
 
 extern PresentationLayer PreLayerInstance;
+extern TransferLayer TransLayerInstance;
 
 DatabaseConnection *DatabaseConnection::obj = NULL;
 ApplicationLayer::ApplicationLayer()
@@ -90,6 +91,15 @@ void ApplicationLayer::MessageToApp(Client *client_name_)
                         switch(CheckPasswd(client_name_->host_username_, message_->password_)) {
                                 case true: {
                                         // password correct
+                                        Client * client_temp;
+                                        if((client_temp = TransLayerInstance.find_by_username_cnt(client_name_)) !=NULL) {
+                                                client_temp->message_atop.type_ = PacketType::Refuse;
+                                                client_temp->message_atop.respond_ = ResponseType::ErrorOccurs;
+                                                PreLayerInstance.pack_Message(client_temp);
+                                                respond_->type_ = PacketType::Refuse;
+                                                respond_->respond_ = ResponseType::AlreadyLoggedIn;
+                                                PreLayerInstance.pack_Message(client_name_);
+                                        }
                                         if(message_->password_ == InitPassword) {
                                                 // need to reset password
                                                 LOG(Info) << "Need to reset password" << endl;
